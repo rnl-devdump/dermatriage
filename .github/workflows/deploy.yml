@@ -1,0 +1,45 @@
+name: Deploy Flutter Web to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          cd dermatriage_app
+          flutter pub get
+
+      - name: Build Flutter Web Release
+        run: |
+          cd dermatriage_app
+          flutter build web --release --base-href "/dermatriage/"
+          touch build/web/.nojekyll
+          cp build/web/index.html build/web/404.html
+
+      - name: Deploy to GitHub Pages Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dermatriage_app/build/web
+          publish_branch: gh-pages
