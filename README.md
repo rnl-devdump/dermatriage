@@ -48,9 +48,50 @@ dermatriage/
 │   ├── assets/                 # Sample exanthem images, research curves & CSVs
 │   └── test/                   # Automated widget and unit tests
 ├── dermatriage_service.py      # Local FastAPI / PyTorch inference microservice
-├── run_service.bat             # Windows batch launcher for PyTorch backend
-├── run_service.ps1             # PowerShell launcher for PyTorch backend
+├── modal_dermatriage_service.py# Serverless PyTorch GPU deployment for Modal
+├── deploy_modal.ps1            # 1-click Modal deployment launcher
+├── requirements.txt            # Python dependencies (PyTorch, timm, Modal, etc.)
+├── run_service.bat             # Windows batch launcher for local PyTorch backend
+├── run_service.ps1             # PowerShell launcher for local PyTorch backend
 └── v2-dermatriage-cnn-vit.ipynb# Research training notebook and model architecture
+```
+
+---
+
+## ⚡ Serverless Modal PyTorch Deployment
+
+The dual-branch CNN-ViT cross-attention model is deployed to serverless GPU infrastructure on Modal with automatic scaling and sub-50ms inference.
+
+- **Live Production Endpoint**: `https://ocamporavenneil--dermatriage-service-dermatriageservice-web-app.us-east.modal.run`
+- **Supported Endpoints**:
+  - `GET /health` : Health, GPU device, and model readiness status
+  - `GET /classes`: Exanthem definitions and triage management protocols
+  - `POST /predict`: Dual-branch classification and 14x14 attention token map (accepts JSON `{'image': '<base64>'}` or multipart image file; returns top-level `condition`, `confidence`, `probabilities`, `attention_map_14x14`, `urgency`, `isolation_protocol`, and `recommended_action`)
+  - `POST /upload-weights`: Direct HTTP upload of fine-tuned `.pt` checkpoint into the persistent Modal Volume
+
+### Deploying to Modal
+```powershell
+# Deploy with 1-click script
+./deploy_modal.ps1
+
+# Or deploy directly via Modal CLI:
+modal deploy modal_dermatriage_service.py
+```
+
+### Running Test Inference via Modal CLI
+```powershell
+modal run modal_dermatriage_service.py
+# or test a specific image:
+modal run modal_dermatriage_service.py --image dermatriage_app/assets/images/samples/mpox_sample_1.jpg
+```
+
+### Uploading Fine-Tuned Checkpoint Weights
+```powershell
+# Via Modal CLI:
+modal run modal_dermatriage_service.py --upload-checkpoint path/to/Proposed_CNN_ViT_CrossAttn_Fold1_best.pt
+
+# Or via direct HTTP curl from Kaggle / remote server:
+curl -X POST https://ocamporavenneil--dermatriage-service-dermatriageservice-web-app.us-east.modal.run/upload-weights -F "file=@Proposed_CNN_ViT_CrossAttn_Fold1_best.pt"
 ```
 
 ---
@@ -64,12 +105,13 @@ flutter pub get
 flutter run -d chrome
 ```
 
-### 2. Optional PyTorch Inference Server
+### 2. Optional Local PyTorch Inference Server
 ```bash
 pip install -r requirements.txt
 python dermatriage_service.py
+# or: ./run_service.ps1
 ```
-*(The Flutter frontend will automatically detect the local PyTorch server or seamlessly fall back to the standalone client engine).*
+*(The Flutter frontend will automatically detect the local or Modal cloud PyTorch server, and seamlessly fall back to the standalone client engine if offline).*
 
 ---
 
@@ -77,6 +119,6 @@ python dermatriage_service.py
 
 ```bash
 cd dermatriage_app
-flutter test
+flutter test -j 1
 ```
-All 5 automated unit and widget test suites pass with 100% test coverage for data models, standalone inference, and core UI components.
+All unit and widget test suites pass with 100% test coverage for data models, standalone inference, and core UI components.

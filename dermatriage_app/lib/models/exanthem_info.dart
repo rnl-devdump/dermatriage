@@ -12,7 +12,8 @@ class ExanthemInfo {
   final List<String> clinicalFeatures;
   final List<String> differentialPoints;
   final List<String> redFlags;
-  final String triagePriority; // 'Level 1: High Priority', 'Level 2: Urgent', 'Level 3: Standard', 'Level 4: Routine'
+  final String
+  triagePriority; // 'Level 1: High Priority', 'Level 2: Urgent', 'Level 3: Standard', 'Level 4: Routine'
   final String isolationGuideline;
   final double modelPrecision;
   final double modelRecall;
@@ -50,7 +51,8 @@ class ExanthemInfo {
       pathogen: 'Monkeypox Virus (MPXV)',
       virusFamily: 'Poxviridae (Orthopoxvirus genus)',
       incubationPeriod: '5 to 21 days (typically 6-13 days)',
-      transmission: 'Close skin-to-skin contact, respiratory droplets, contaminated fomites',
+      transmission:
+          'Close skin-to-skin contact, respiratory droplets, contaminated fomites',
       morphologySummary:
           'Firm, deep-seated, well-circumscribed papulovesicular lesions advancing to tense pustules with pronounced central umbilication, eventual thick dark crusting and scarring.',
       lesionEvolution:
@@ -95,7 +97,8 @@ class ExanthemInfo {
       pathogen: 'Varicella-Zoster Virus (VZV)',
       virusFamily: 'Herpesviridae (Alphaherpesvirinae)',
       incubationPeriod: '10 to 21 days (typically 14-16 days)',
-      transmission: 'Highly contagious via airborne droplets and direct contact with blister vesicle fluid',
+      transmission:
+          'Highly contagious via airborne droplets and direct contact with blister vesicle fluid',
       morphologySummary:
           'Superficial thin-walled clear vesicles on an erythematous base classically described as "dewdrops on a rose petal", rapidly progressing to pustules and crusts.',
       lesionEvolution:
@@ -139,8 +142,10 @@ class ExanthemInfo {
       name: 'Measles (Rubeola)',
       pathogen: 'Measles Morbillivirus',
       virusFamily: 'Paramyxoviridae',
-      incubationPeriod: '7 to 14 days (typically 10-12 days to prodrome, 14 days to rash)',
-      transmission: 'Extremely contagious via aerosolized respiratory droplets remaining viable in air up to 2 hours',
+      incubationPeriod:
+          '7 to 14 days (typically 10-12 days to prodrome, 14 days to rash)',
+      transmission:
+          'Extremely contagious via aerosolized respiratory droplets remaining viable in air up to 2 hours',
       morphologySummary:
           'Confluent erythematous maculopapular (morbilliform) rash that starts discrete and coalesces into large irregular patches; resolves with coppery hyperpigmentation and fine desquamation.',
       lesionEvolution:
@@ -185,7 +190,8 @@ class ExanthemInfo {
       pathogen: 'Cowpox Virus (CPXV)',
       virusFamily: 'Poxviridae (Orthopoxvirus genus)',
       incubationPeriod: '9 to 12 days',
-      transmission: 'Direct contact with infected animal reservoirs (domestic cats, pet rats, wild rodents), rarely human-to-human',
+      transmission:
+          'Direct contact with infected animal reservoirs (domestic cats, pet rats, wild rodents), rarely human-to-human',
       morphologySummary:
           'Solitary or paucifocal (1 to 3) lesions starting as an inflamed macule, transforming into a hard indurated papule, hemorrhagic vesicle, and ultimately a large deeply excavated black necrotic eschar.',
       lesionEvolution:
@@ -227,10 +233,12 @@ class ExanthemInfo {
     ExanthemInfo(
       id: 'hfmd',
       name: 'Hand, Foot, and Mouth Disease (HFMD)',
-      pathogen: 'Coxsackievirus A16, Enterovirus A71 (EV-A71), Coxsackievirus A6',
+      pathogen:
+          'Coxsackievirus A16, Enterovirus A71 (EV-A71), Coxsackievirus A6',
       virusFamily: 'Picornaviridae (Enterovirus genus)',
       incubationPeriod: '3 to 6 days',
-      transmission: 'Fecal-oral route, contact with blister fluid, or respiratory droplets in childcare and school environments',
+      transmission:
+          'Fecal-oral route, contact with blister fluid, or respiratory droplets in childcare and school environments',
       morphologySummary:
           'Small (2-5 mm), oval or football-shaped greyish-white papulovesicles oriented along skin tension lines, surrounded by a thin erythematous halo.',
       lesionEvolution:
@@ -282,8 +290,7 @@ class ExanthemInfo {
           'Stable physiological epidermal renewal; normal barrier function without active immunological cascade.',
       anatomicalDistribution:
           'Generalized intact cutaneous envelope across all anatomical dermatomes.',
-      lymphadenopathyProfile:
-          'Normal, non-palpable, non-tender lymph nodes.',
+      lymphadenopathyProfile: 'Normal, non-palpable, non-tender lymph nodes.',
       clinicalFeatures: [
         'Intact epidermal surface with preserved skin furrow patterns',
         'Absence of inflammatory hypervascularity or perilesional erythema',

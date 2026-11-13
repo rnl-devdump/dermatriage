@@ -15,7 +15,9 @@ class BenchmarkService {
 
   Future<void> loadAssets() async {
     try {
-      final jsonString = await rootBundle.loadString('assets/data/benchmarks.json');
+      final jsonString = await rootBundle.loadString(
+        'assets/data/benchmarks.json',
+      );
       final Map<String, dynamic> data = jsonDecode(jsonString);
       _benchmarkData = BenchmarkData.fromJson(data);
     } catch (e) {
@@ -23,7 +25,9 @@ class BenchmarkService {
     }
 
     try {
-      final samplesString = await rootBundle.loadString('assets/data/samples.json');
+      final samplesString = await rootBundle.loadString(
+        'assets/data/samples.json',
+      );
       final List<dynamic> list = jsonDecode(samplesString);
       _samples = list.map((e) => e as Map<String, dynamic>).toList();
     } catch (_) {}

@@ -23,9 +23,13 @@ migrate_working_dir/
 **/.pub/
 **/coverage/
 
-# IDE / Editor
+# IDE / Editor / Agents
 .idea/
 .vscode/
+.codex/
+.cursor/
+.gemini/
+.impeccable/config.local.json
 *.iml
 *.iws
 *.ipr

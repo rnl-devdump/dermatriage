@@ -20,11 +20,16 @@ class BenchmarkData {
     }).toList();
 
     return BenchmarkData(
-      classificationReport: json['classification_report'] as Map<String, dynamic>? ?? {},
+      classificationReport:
+          json['classification_report'] as Map<String, dynamic>? ?? {},
       fiveFoldSummary: json['five_fold_summary'] as List<dynamic>? ?? [],
       foldResults: json['fold_results'] as List<dynamic>? ?? [],
       confusionMatrix: cm,
-      classes: (json['classes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      classes:
+          (json['classes'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 }

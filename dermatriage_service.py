@@ -116,7 +116,8 @@ class CNNViTCrossAttention(nn.Module):
             nn.Dropout(0.2)
         )
         self.ffn_norm = nn.LayerNorm(embed_dim)
-        self.classifier = nn.Sequential(nn.Dropout(CLS_DROPOUT), nn.Linear(embed_dim, num_classes))
+        # Classification head directly matches the training notebook architecture
+        self.classifier = nn.Linear(embed_dim, num_classes)
 
     def extract_patch_tokens(self, img: torch.Tensor) -> torch.Tensor:
         img_norm = self.vit_norm(img)
@@ -160,8 +161,23 @@ def get_model():
         model = CNNViTCrossAttention(pretrained=False).to(DEVICE)
         if CKPT_PATH.exists():
             ckpt = torch.load(CKPT_PATH, map_location=DEVICE)
-            model.load_state_dict(ckpt, strict=False)
-            logging.info(f"Loaded weights from {CKPT_PATH}")
+            if isinstance(ckpt, dict):
+                if "state_dict" in ckpt:
+                    ckpt = ckpt["state_dict"]
+                elif "model" in ckpt:
+                    ckpt = ckpt["model"]
+            cleaned = {}
+            for k, v in ckpt.items():
+                new_k = k
+                if new_k.startswith("module."):
+                    new_k = new_k[len("module."):]
+                if new_k.startswith("model."):
+                    new_k = new_k[len("model."):]
+                if new_k.startswith("classifier.1."):
+                    new_k = new_k.replace("classifier.1.", "classifier.")
+                cleaned[new_k] = v
+            missing, unexpected = model.load_state_dict(cleaned, strict=False)
+            logging.info(f"Loaded weights from {CKPT_PATH} (missing={len(missing)}, unexpected={len(unexpected)})")
         else:
             logging.warning(f"Checkpoint not found at {CKPT_PATH}, using uninitialized weights!")
         model.eval()
@@ -251,17 +267,25 @@ class RequestHandler(BaseHTTPRequestHandler):
             prob_dict = {cls_name: round(float(prob), 4) for cls_name, prob in zip(CLASSES, probs)}
             guideline = TRIAGE_GUIDELINES.get(predicted_class, {})
 
+            urgency = guideline.get("urgency", "Urgent Priority")
+            isolation_protocol = guideline.get("isolation", "Contact Isolation")
+            recommended_action = guideline.get("action", "Clinical consultation advised.")
+
             response_data = {
+                "condition": predicted_class,
                 "prediction": predicted_class,
                 "confidence": round(confidence, 4),
                 "confidence_percent": f"{round(confidence * 100, 1)}%",
                 "probabilities": prob_dict,
                 "attention_map_14x14": norm_attn,
+                "urgency": urgency,
+                "isolation_protocol": isolation_protocol,
+                "recommended_action": recommended_action,
                 "triage": {
                     "condition": predicted_class,
-                    "urgency": guideline.get("urgency", "Urgent Priority"),
-                    "isolation_protocol": guideline.get("isolation", "Contact Isolation"),
-                    "recommended_action": guideline.get("action", "Clinical consultation advised.")
+                    "urgency": urgency,
+                    "isolation_protocol": isolation_protocol,
+                    "recommended_action": recommended_action,
                 }
             }
 

@@ -14,17 +14,14 @@ class ScanView extends StatefulWidget {
   final String? preloadedAssetPath;
   final String? preloadedClassName;
 
-  const ScanView({
-    super.key,
-    this.preloadedAssetPath,
-    this.preloadedClassName,
-  });
+  const ScanView({super.key, this.preloadedAssetPath, this.preloadedClassName});
 
   @override
   State<ScanView> createState() => _ScanViewState();
 }
 
-class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin {
+class _ScanViewState extends State<ScanView>
+    with SingleTickerProviderStateMixin {
   final InferenceService _inference = InferenceService();
   final HistoryService _history = HistoryService();
 
@@ -151,16 +148,19 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isOnline = _inference.isPyTorchServerOnline;
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobilePadding = screenWidth < 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? AppTheme.backgroundDark
+          : AppTheme.backgroundLight,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
-          horizontal: isMobilePadding ? 16 : 24,
-          vertical: isMobilePadding ? 16 : 20,
+          horizontal: isMobilePadding ? 14 : 24,
+          vertical: isMobilePadding ? 14 : 20,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,16 +176,23 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                     Text(
                       'Local Clinical Lesion Triage & Scan',
                       style: TextStyle(
-                        fontSize: isCompact ? 20 : 22,
+                        fontSize: isCompact ? 19 : 22,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
+                        color: isDark
+                            ? AppTheme.textPrimaryDark
+                            : AppTheme.textPrimaryLight,
                         letterSpacing: -0.4,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       'Evaluates skin lesions locally using Proposed Dual-Branch CNN-ViT Cross-Attention',
-                      style: TextStyle(fontSize: 12.5, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppTheme.textSecondaryDark
+                            : const Color(0xFF64748B),
+                      ),
                     ),
                   ],
                 );
@@ -197,12 +204,27 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      color: isOnline ? const Color(0xFFECFDF5) : const Color(0xFFFFFBEB),
+                      color: isOnline
+                          ? (isDark
+                                ? const Color(0xFF064E3B)
+                                : const Color(0xFFECFDF5))
+                          : (isDark
+                                ? const Color(0xFF451A03)
+                                : const Color(0xFFFFFBEB)),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isOnline ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                        color: isOnline
+                            ? (isDark
+                                  ? const Color(0xFF059669)
+                                  : const Color(0xFF10B981))
+                            : (isDark
+                                  ? const Color(0xFFD97706)
+                                  : const Color(0xFFF59E0B)),
                         width: 1.2,
                       ),
                     ),
@@ -210,9 +232,13 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isOnline ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                          isOnline
+                              ? Icons.check_circle_rounded
+                              : Icons.info_outline_rounded,
                           size: 16,
-                          color: isOnline ? const Color(0xFF059669) : const Color(0xFFD97706),
+                          color: isOnline
+                              ? const Color(0xFF059669)
+                              : const Color(0xFFD97706),
                         ),
                         const SizedBox(width: 8),
                         Column(
@@ -225,7 +251,9 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
-                                color: isOnline ? const Color(0xFF059669) : const Color(0xFFD97706),
+                                color: isOnline
+                                    ? const Color(0xFF059669)
+                                    : const Color(0xFFD97706),
                               ),
                             ),
                             Text(
@@ -234,7 +262,9 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                                   : 'Tap to refresh local server status',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.grey.shade600,
+                                color: isDark
+                                    ? AppTheme.textMutedDark
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ],
@@ -273,18 +303,32 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF2F2),
+                  color: isDark
+                      ? const Color(0xFF450A0A)
+                      : const Color(0xFFFEF2F2),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFCA5A5)),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF991B1B)
+                        : const Color(0xFFFCA5A5),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626)),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: Color(0xFFDC2626),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(color: Color(0xFF991B1B), fontSize: 13),
+                        style: TextStyle(
+                          color: isDark
+                              ? const Color(0xFFFECACA)
+                              : const Color(0xFF991B1B),
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
@@ -294,12 +338,12 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
             // Responsive Layout: Side-by-side on desktop, single-column stacked on mobile/tablet
             LayoutBuilder(
               builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= 850;
-                final intakeHeight = isWide ? 380.0 : 300.0;
+                final isWide = constraints.maxWidth >= 880;
+                final intakeHeight = isWide ? 400.0 : 320.0;
 
                 final intakeColumn = Column(
                   children: [
-                    _buildImageIntakeBox(intakeHeight),
+                    _buildImageIntakeBox(intakeHeight, isDark),
                     const SizedBox(height: 16),
                     // Action buttons
                     Row(
@@ -307,7 +351,10 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: _pickImageFile,
-                            icon: const Icon(Icons.file_upload_outlined, size: 18),
+                            icon: const Icon(
+                              Icons.file_upload_outlined,
+                              size: 18,
+                            ),
                             label: const Text('Upload Photo'),
                           ),
                         ),
@@ -315,7 +362,10 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: _showSamplePicker,
-                            icon: const Icon(Icons.collections_rounded, size: 18),
+                            icon: const Icon(
+                              Icons.collections_rounded,
+                              size: 18,
+                            ),
                             label: const Text('Test Samples'),
                           ),
                         ),
@@ -326,28 +376,56 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: _isScanning ? null : _executeClassification,
+                          onPressed: _isScanning
+                              ? null
+                              : _executeClassification,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF006A6B),
+                            backgroundColor: isDark
+                                ? AppTheme.primaryTeal
+                                : AppTheme.primaryTeal,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           icon: _isScanning
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
                                 )
                               : const Icon(Icons.refresh_rounded, size: 18),
-                          label: Text(_isScanning ? 'Analyzing Attention Tokens...' : 'Re-Classify Lesion'),
+                          label: Text(
+                            _isScanning
+                                ? 'Extracting Attention Tokens...'
+                                : 'Re-Classify Lesion',
+                          ),
                         ),
                       ),
                     ],
                   ],
                 );
 
-                final resultColumn = _triageResult == null
-                    ? _buildEmptyState()
-                    : _buildTriageResultCard(_triageResult!);
+                final resultColumn = AnimatedSwitcher(
+                  duration: AppMotion.fluid,
+                  switchInCurve: AppMotion.curve,
+                  switchOutCurve: Curves.easeIn,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.03),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _triageResult == null
+                      ? _buildEmptyState(isDark)
+                      : _buildTriageResultCard(_triageResult!, isDark),
+                );
 
                 if (isWide) {
                   return Row(
@@ -375,22 +453,24 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildImageIntakeBox([double boxHeight = 360]) {
+  Widget _buildImageIntakeBox(double boxHeight, bool isDark) {
     return Container(
       width: double.infinity,
       height: boxHeight,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppTheme.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _selectedImageBytes != null ? const Color(0xFF006A6B) : const Color(0xFFCBD5E1),
+          color: _selectedImageBytes != null
+              ? (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
+              : (isDark ? AppTheme.borderFocusedDark : const Color(0xFFCBD5E1)),
           width: 1.5,
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -403,32 +483,44 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                 children: [
                   Container(
                     padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE6FFFA),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppTheme.primaryTeal.withValues(alpha: 0.2)
+                          : const Color(0xFFE6FFFA),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.add_a_photo_outlined,
-                      size: 40,
-                      color: Color(0xFF006A6B),
+                      size: 38,
+                      color: isDark
+                          ? AppTheme.tealAccentDark
+                          : AppTheme.primaryTeal,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Select or Drop Skin Lesion Photo',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
+                      color: isDark
+                          ? AppTheme.textPrimaryDark
+                          : AppTheme.textPrimaryLight,
+                      letterSpacing: -0.2,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Supports JPEG, PNG, or select verified MSLD v2.0 clinical cases',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppTheme.textSecondaryDark
+                            : const Color(0xFF64748B),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -436,9 +528,15 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                     onPressed: _showSamplePicker,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0284C7),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                     ),
-                    icon: const Icon(Icons.collections_bookmark_rounded, size: 16),
+                    icon: const Icon(
+                      Icons.collections_bookmark_rounded,
+                      size: 16,
+                    ),
                     label: const Text('Select Verified Test Case'),
                   ),
                 ],
@@ -447,31 +545,44 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
           : Stack(
               fit: StackFit.expand,
               children: [
-                Image.memory(
-                  _selectedImageBytes!,
-                  fit: BoxFit.contain,
-                ),
-                // Scanning Line (Clean Clinical Indicator, no AI-slop neon laser glow)
+                Image.memory(_selectedImageBytes!, fit: BoxFit.contain),
+                // Precision Medical Scanning Indicator
                 if (_isScanning)
                   AnimatedBuilder(
                     animation: _scanAnimation,
                     builder: (context, _) {
                       return Positioned(
-                        top: _scanAnimation.value * (boxHeight - 10),
+                        top: _scanAnimation.value * (boxHeight - 16),
                         left: 0,
                         right: 0,
-                        child: Container(
-                          height: 2.5,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF006A6B),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF26A69A).withValues(alpha: 0.5),
-                                blurRadius: 4,
-                                spreadRadius: 1,
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 3,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(
+                                      0xFF0284C7,
+                                    ).withValues(alpha: 0.1),
+                                    const Color(0xFF2DD4BF),
+                                    const Color(0xFF006A6B),
+                                    const Color(0xFF2DD4BF),
+                                    const Color(
+                                      0xFF0284C7,
+                                    ).withValues(alpha: 0.1),
+                                  ],
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0xFF2DD4BF),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -481,14 +592,21 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.75),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       _selectedFileName ?? 'Loaded Image',
-                      style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -497,14 +615,21 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF006A6B).withValues(alpha: 0.9),
+                        color: const Color(0xFF006A6B).withValues(alpha: 0.92),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         'Actual: $_knownGroundTruth',
-                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
@@ -513,34 +638,49 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDark) {
     return Container(
+      key: const ValueKey('scan_empty_state'),
       height: 480,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppTheme.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? AppTheme.borderFocusedDark : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.biotech_rounded, size: 54, color: Colors.grey.shade400),
+            Icon(
+              Icons.biotech_rounded,
+              size: 52,
+              color: isDark ? AppTheme.textMutedDark : Colors.grey.shade400,
+            ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Awaiting Skin Lesion Image',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF334155),
+                color: isDark
+                    ? AppTheme.textPrimaryDark
+                    : const Color(0xFF334155),
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Upload a clinical photo or choose a verified MSLD v2.0 test case on the left to generate local neural classification, cross-attention patch maps, and triage protocols.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.45),
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark
+                    ? AppTheme.textSecondaryDark
+                    : const Color(0xFF64748B),
+                height: 1.45,
+              ),
             ),
           ],
         ),
@@ -548,16 +688,19 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildTriageResultCard(TriageResult res) {
+  Widget _buildTriageResultCard(TriageResult res, bool isDark) {
     return Container(
+      key: ValueKey('scan_result_${res.condition}_${res.timestamp}'),
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppTheme.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? AppTheme.borderFocusedDark : const Color(0xFFE2E8F0),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -581,25 +724,36 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                     children: [
                       Text(
                         res.condition,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
+                          color: isDark
+                              ? AppTheme.textPrimaryDark
+                              : const Color(0xFF0F172A),
                           letterSpacing: -0.5,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF006A6B).withValues(alpha: 0.12),
+                          color:
+                              (isDark
+                                      ? AppTheme.tealAccentDark
+                                      : const Color(0xFF006A6B))
+                                  .withValues(alpha: isDark ? 0.2 : 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           res.confidencePercent,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF006A6B),
+                            color: isDark
+                                ? AppTheme.tealAccentDark
+                                : const Color(0xFF006A6B),
                           ),
                         ),
                       ),
@@ -608,12 +762,20 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                   const SizedBox(height: 4),
                   Text(
                     'Classified via ${res.isLocalPyTorchEngine ? "PyTorch Dual-Branch Cross-Attn" : "Standalone Local Dart Engine"}',
-                    style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark
+                          ? AppTheme.textMutedDark
+                          : Colors.grey.shade600,
+                    ),
                   ),
                 ],
               );
 
-              final urgencyBadge = UrgencyBadgeWidget(urgency: res.urgency, isLarge: !isCompact);
+              final urgencyBadge = UrgencyBadgeWidget(
+                urgency: res.urgency,
+                isLarge: !isCompact,
+              );
 
               if (isCompact) {
                 return Column(
@@ -638,15 +800,22 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
             },
           ),
 
-          const Divider(height: 24),
+          Divider(
+            height: 24,
+            color: isDark
+                ? AppTheme.borderFocusedDark
+                : AppTheme.borderSubtleLight,
+          ),
 
           // Required Action & Isolation Alert Box
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppTheme.getUrgencyBg(res.urgency),
+              color: AppTheme.getUrgencyBg(res.urgency, isDark),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.getUrgencyBorder(res.urgency)),
+              border: Border.all(
+                color: AppTheme.getUrgencyBorder(res.urgency, isDark),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -659,12 +828,15 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                       color: AppTheme.getUrgencyColor(res.urgency),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      'Triage Protocol: ${res.isolationProtocol}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.getUrgencyColor(res.urgency),
+                    Expanded(
+                      child: Text(
+                        'Triage Protocol: ${res.isolationProtocol}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.getUrgencyColor(res.urgency),
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -672,9 +844,11 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                 const SizedBox(height: 6),
                 Text(
                   res.recommendedAction,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
-                    color: Color(0xFF1E293B),
+                    color: isDark
+                        ? const Color(0xFFF1F5F9)
+                        : const Color(0xFF1E3A8B),
                     height: 1.4,
                   ),
                 ),
@@ -685,12 +859,15 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
           const SizedBox(height: 20),
 
           // 6-Class Probability Breakdown
-          const Text(
+          Text(
             'Multi-Class Probability Distribution',
             style: TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF0F172A),
+              color: isDark
+                  ? AppTheme.textPrimaryDark
+                  : const Color(0xFF0F172A),
+              letterSpacing: -0.2,
             ),
           ),
           const SizedBox(height: 8),
@@ -705,7 +882,12 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
             }).toList(),
           ),
 
-          const Divider(height: 28),
+          Divider(
+            height: 28,
+            color: isDark
+                ? AppTheme.borderFocusedDark
+                : AppTheme.borderSubtleLight,
+          ),
 
           // Explainable AI: 14x14 Cross-Attention Heatmap
           AttentionHeatmapWidget(
@@ -726,7 +908,12 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                       'Dermatriage Assessment\nCondition: ${res.condition} (${res.confidencePercent})\nUrgency: ${res.urgency}\nProtocol: ${res.isolationProtocol}\nAction: ${res.recommendedAction}';
                   Clipboard.setData(ClipboardData(text: summary));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Triage summary copied to clipboard!')),
+                    const SnackBar(
+                      content: Text(
+                        'Triage clinical report copied to clipboard!',
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 16),

@@ -32,29 +32,37 @@ void main() {
   });
 
   group('Standalone Inference Service', () {
-    test('Classifies dummy test bytes and generates 196 attention tokens', () async {
-      final inference = InferenceService();
-      final dummyBytes = Uint8List.fromList(List.filled(224 * 224 * 3, 128));
+    test(
+      'Classifies dummy test bytes and generates 196 attention tokens',
+      () async {
+        final inference = InferenceService();
+        final dummyBytes = Uint8List.fromList(List.filled(224 * 224 * 3, 128));
 
-      final result = await inference.classify(
-        imageBytes: dummyBytes,
-        knownGroundTruth: 'Mpox',
-      );
+        final result = await inference.classify(
+          imageBytes: dummyBytes,
+          knownGroundTruth: 'Mpox',
+        );
 
-      expect(result.condition, equals('Mpox'));
-      expect(result.confidence, greaterThan(0.5));
-      expect(result.probabilities.length, equals(6));
-      expect(result.attentionMap14x14.length, equals(196));
-      expect(result.urgency.contains('Level 1'), isTrue);
-    });
+        expect(result.condition, equals('Mpox'));
+        expect(result.confidence, greaterThan(0.5));
+        expect(result.probabilities.length, equals(6));
+        expect(result.attentionMap14x14.length, equals(196));
+        expect(result.urgency.contains('Level 1'), isTrue);
+      },
+    );
   });
 
   group('UI Widgets Tests', () {
-    testWidgets('UrgencyBadgeWidget renders priority label and icon', (tester) async {
+    testWidgets('UrgencyBadgeWidget renders priority label and icon', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: UrgencyBadgeWidget(urgency: 'Level 1: High Priority', isLarge: true),
+            body: UrgencyBadgeWidget(
+              urgency: 'Level 1: High Priority',
+              isLarge: true,
+            ),
           ),
         ),
       );
@@ -63,7 +71,9 @@ void main() {
       expect(find.byIcon(Icons.warning_rounded), findsOneWidget);
     });
 
-    testWidgets('ProbabilityBarWidget renders label and percentage', (tester) async {
+    testWidgets('ProbabilityBarWidget renders label and percentage', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -81,14 +91,18 @@ void main() {
       expect(find.text('PRIMARY'), findsOneWidget);
     });
 
-    testWidgets('DermatriageApp main shell renders without crash', (tester) async {
+    testWidgets('DermatriageApp main shell renders without crash', (
+      tester,
+    ) async {
       await tester.pumpWidget(const DermatriageApp());
       await tester.pump();
 
       expect(find.text('Dermatriage'), findsOneWidget);
     });
 
-    testWidgets('Responsive layouts adapt to mobile screen size', (tester) async {
+    testWidgets('Responsive layouts adapt to mobile screen size', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(360, 640);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

@@ -5,7 +5,8 @@ class TriageResult {
   final double confidence;
   final String confidencePercent;
   final Map<String, double> probabilities;
-  final List<double> attentionMap14x14; // 196 normalized spatial patch attention weights
+  final List<double>
+  attentionMap14x14; // 196 normalized spatial patch attention weights
   final String urgency;
   final String isolationProtocol;
   final String recommendedAction;
@@ -53,8 +54,10 @@ class TriageResult {
       probabilities: probs,
       attentionMap14x14: attn,
       urgency: triage['urgency'] as String? ?? 'Urgent Priority',
-      isolationProtocol: triage['isolation_protocol'] as String? ?? 'Contact Precautions',
-      recommendedAction: triage['recommended_action'] as String? ?? 'Consult physician.',
+      isolationProtocol:
+          triage['isolation_protocol'] as String? ?? 'Contact Precautions',
+      recommendedAction:
+          triage['recommended_action'] as String? ?? 'Consult physician.',
       timestamp: DateTime.now(),
       isLocalPyTorchEngine: isLocalPyTorch,
       imageBytes: imageBytes,
@@ -70,7 +73,9 @@ class TriageResult {
       'isolationProtocol': isolationProtocol,
       'recommendedAction': recommendedAction,
       'timestamp': timestamp.toIso8601String(),
-      'engine': isLocalPyTorchEngine ? 'Local PyTorch (Dual-Branch Cross-Attn)' : 'Local Standalone Dart Engine',
+      'engine': isLocalPyTorchEngine
+          ? 'Local PyTorch (Dual-Branch Cross-Attn)'
+          : 'Local Standalone Dart Engine',
       'sampleFile': sampleFileName ?? 'User Upload',
       'probabilities': probabilities,
     };

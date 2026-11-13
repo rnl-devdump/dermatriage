@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/exanthem_info.dart';
+import '../theme/app_theme.dart';
 
 class SampleSelectorDialog extends StatelessWidget {
   final Function(String assetPath, String className) onSelectSample;
@@ -8,14 +9,23 @@ class SampleSelectorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
     final isCompact = screenWidth < 500;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark
+              ? AppTheme.borderFocusedDark
+              : AppTheme.borderSubtleLight,
+        ),
+      ),
       child: Container(
         constraints: BoxConstraints(
-          maxWidth: 580,
+          maxWidth: 600,
           maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         width: screenWidth * 0.94,
@@ -27,7 +37,7 @@ class SampleSelectorDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -36,35 +46,63 @@ class SampleSelectorDialog extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
+                          color: isDark
+                              ? AppTheme.textPrimaryDark
+                              : AppTheme.textPrimaryLight,
+                          letterSpacing: -0.3,
                         ),
                       ),
-                      SizedBox(height: 3),
+                      const SizedBox(height: 3),
                       Text(
-                        'Select a clinical test case from the held-out evaluation split',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        'Select a clinical case from the held-out validation split',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? AppTheme.textSecondaryDark
+                              : AppTheme.textSecondaryLight,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: isDark
+                        ? AppTheme.textSecondaryDark
+                        : const Color(0xFF64748B),
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
-            const Divider(height: 24),
+            Divider(
+              height: 24,
+              color: isDark
+                  ? AppTheme.borderFocusedDark
+                  : AppTheme.borderSubtleLight,
+            ),
             Flexible(
               child: SingleChildScrollView(
                 child: Column(
                   children: ExanthemInfo.allExanthems.map((ex) {
+                    final urgencyColor = AppTheme.getUrgencyColor(
+                      ex.triagePriority,
+                    );
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: 14),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFE2E8F0),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,32 +110,50 @@ class SampleSelectorDialog extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  ex.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14,
-                                    color: Color(0xFF006A6B),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: urgencyColor,
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    ex.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: isDark
+                                          ? AppTheme.tealAccentDark
+                                          : AppTheme.primaryTeal,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                               Text(
-                                '${ex.modelSupport} Fold-1 Test Cases',
-                                style: const TextStyle(
+                                '${ex.modelSupport} Cases • F1: ${(ex.modelF1 * 100).toStringAsFixed(1)}%',
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: Color(0xFF64748B),
+                                  color: isDark
+                                      ? AppTheme.textMutedDark
+                                      : const Color(0xFF64748B),
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           LayoutBuilder(
                             builder: (context, boxConstraints) {
                               final isNarrow = boxConstraints.maxWidth < 360;
                               final items = ex.sampleAssets.map((path) {
-                                final sampleNum = path.contains('sample_1') ? 'Case 1' : 'Case 2';
+                                final sampleNum = path.contains('sample_1')
+                                    ? 'Case 1'
+                                    : 'Case 2';
                                 final card = InkWell(
                                   onTap: () {
                                     Navigator.pop(context);
@@ -111,57 +167,104 @@ class SampleSelectorDialog extends StatelessWidget {
                                     ),
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: isDark
+                                          ? AppTheme.cardDark
+                                          : Colors.white,
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                                      border: Border.all(
+                                        color: isDark
+                                            ? const Color(0xFF334155)
+                                            : const Color(0xFFCBD5E1),
+                                      ),
                                     ),
                                     child: Row(
                                       children: [
                                         ClipRRect(
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
                                           child: Image.asset(
                                             path,
                                             width: 44,
                                             height: 44,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) => Container(
-                                              width: 44,
-                                              height: 44,
-                                              color: Colors.grey.shade200,
-                                              child: const Icon(Icons.image, size: 22, color: Colors.grey),
-                                            ),
+                                            errorBuilder:
+                                                (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) => Container(
+                                                  width: 44,
+                                                  height: 44,
+                                                  color: isDark
+                                                      ? Colors.white10
+                                                      : Colors.grey.shade200,
+                                                  child: const Icon(
+                                                    Icons.image,
+                                                    size: 22,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 sampleNum,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
+                                                  color: isDark
+                                                      ? AppTheme.textPrimaryDark
+                                                      : AppTheme
+                                                            .textPrimaryLight,
                                                 ),
                                               ),
-                                              const Text(
+                                              Text(
                                                 'Tap to evaluate',
                                                 style: TextStyle(
                                                   fontSize: 10.5,
-                                                  color: Color(0xFF0284C7),
+                                                  color: isDark
+                                                      ? AppTheme.tealAccentDark
+                                                      : const Color(0xFF006A6B),
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
+                                        Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 11,
+                                          color: isDark
+                                              ? AppTheme.textMutedDark
+                                              : Colors.grey.shade400,
+                                        ),
+                                        const SizedBox(width: 4),
                                       ],
                                     ),
                                   ),
                                 );
-                                return isNarrow ? card : Expanded(child: card);
+
+                                if (isNarrow) {
+                                  return SizedBox(
+                                    width: double.infinity,
+                                    child: card,
+                                  );
+                                } else {
+                                  return Expanded(child: card);
+                                }
                               }).toList();
 
-                              return isNarrow ? Column(children: items) : Row(children: items);
+                              if (isNarrow) {
+                                return Column(children: items);
+                              } else {
+                                return Row(children: items);
+                              }
                             },
                           ),
                         ],
