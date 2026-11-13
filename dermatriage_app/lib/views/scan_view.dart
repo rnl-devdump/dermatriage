@@ -152,27 +152,33 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final isOnline = _inference.isPyTorchServerOnline;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobilePadding = screenWidth < 600;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobilePadding ? 16 : 24,
+          vertical: isMobilePadding ? 16 : 20,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Engine Connectivity & Header Bar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact = constraints.maxWidth < 700;
+
+                final titleColumn = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Local Clinical Lesion Triage & Scan',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: isCompact ? 20 : 22,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
+                        color: const Color(0xFF0F172A),
                         letterSpacing: -0.4,
                       ),
                     ),
@@ -182,9 +188,9 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                       style: TextStyle(fontSize: 12.5, color: Colors.grey.shade600),
                     ),
                   ],
-                ),
-                // Local Engine Status Badge
-                InkWell(
+                );
+
+                final statusBadge = InkWell(
                   onTap: () async {
                     await _inference.checkHealth();
                     setState(() {});
@@ -236,8 +242,28 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                       ],
                     ),
                   ),
-                ),
-              ],
+                );
+
+                if (isCompact) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      titleColumn,
+                      const SizedBox(height: 12),
+                      statusBadge,
+                    ],
+                  );
+                } else {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: titleColumn),
+                      const SizedBox(width: 12),
+                      statusBadge,
+                    ],
+                  );
+                }
+              },
             ),
 
             const SizedBox(height: 20),
@@ -265,72 +291,83 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                 ),
               ),
 
-            // Two-column layout: Left = Intake & Preview, Right = Diagnostic Results
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left Column: Intake & Scanning Box
-                Expanded(
-                  flex: 5,
-                  child: Column(
-                    children: [
-                      _buildImageIntakeBox(),
-                      const SizedBox(height: 16),
-                      // Action buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _pickImageFile,
-                              icon: const Icon(Icons.file_upload_outlined, size: 18),
-                              label: const Text('Upload Photo'),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _showSamplePicker,
-                              icon: const Icon(Icons.collections_rounded, size: 18),
-                              label: const Text('Test Samples'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (_selectedImageBytes != null) ...[
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
+            // Responsive Layout: Side-by-side on desktop, single-column stacked on mobile/tablet
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 850;
+                final intakeHeight = isWide ? 380.0 : 300.0;
+
+                final intakeColumn = Column(
+                  children: [
+                    _buildImageIntakeBox(intakeHeight),
+                    const SizedBox(height: 16),
+                    // Action buttons
+                    Row(
+                      children: [
+                        Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: _isScanning ? null : _executeClassification,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF006A6B),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            icon: _isScanning
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                  )
-                                : const Icon(Icons.refresh_rounded, size: 18),
-                            label: Text(_isScanning ? 'Analyzing Attention Tokens...' : 'Re-Classify Lesion'),
+                            onPressed: _pickImageFile,
+                            icon: const Icon(Icons.file_upload_outlined, size: 18),
+                            label: const Text('Upload Photo'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _showSamplePicker,
+                            icon: const Icon(Icons.collections_rounded, size: 18),
+                            label: const Text('Test Samples'),
                           ),
                         ),
                       ],
+                    ),
+                    if (_selectedImageBytes != null) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _isScanning ? null : _executeClassification,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF006A6B),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          icon: _isScanning
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.refresh_rounded, size: 18),
+                          label: Text(_isScanning ? 'Analyzing Attention Tokens...' : 'Re-Classify Lesion'),
+                        ),
+                      ),
                     ],
-                  ),
-                ),
+                  ],
+                );
 
-                const SizedBox(width: 24),
+                final resultColumn = _triageResult == null
+                    ? _buildEmptyState()
+                    : _buildTriageResultCard(_triageResult!);
 
-                // Right Column: Diagnostic Triage Output
-                Expanded(
-                  flex: 7,
-                  child: _triageResult == null
-                      ? _buildEmptyState()
-                      : _buildTriageResultCard(_triageResult!),
-                ),
-              ],
+                if (isWide) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 5, child: intakeColumn),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 7, child: resultColumn),
+                    ],
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      intakeColumn,
+                      const SizedBox(height: 24),
+                      resultColumn,
+                    ],
+                  );
+                }
+              },
             ),
           ],
         ),
@@ -338,10 +375,10 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildImageIntakeBox() {
+  Widget _buildImageIntakeBox([double boxHeight = 360]) {
     return Container(
       width: double.infinity,
-      height: 380,
+      height: boxHeight,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -349,11 +386,11 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
           color: _selectedImageBytes != null ? const Color(0xFF006A6B) : const Color(0xFFCBD5E1),
           width: 1.5,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Color(0x0A000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -386,11 +423,15 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Supports JPEG, PNG, or select verified MSLD v2.0 clinical cases',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Supports JPEG, PNG, or select verified MSLD v2.0 clinical cases',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   ElevatedButton.icon(
                     onPressed: _showSamplePicker,
                     style: ElevatedButton.styleFrom(
@@ -410,24 +451,24 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                   _selectedImageBytes!,
                   fit: BoxFit.contain,
                 ),
-                // Scanning Laser Animation
+                // Scanning Line (Clean Clinical Indicator, no AI-slop neon laser glow)
                 if (_isScanning)
                   AnimatedBuilder(
                     animation: _scanAnimation,
                     builder: (context, _) {
                       return Positioned(
-                        top: _scanAnimation.value * 360,
+                        top: _scanAnimation.value * (boxHeight - 10),
                         left: 0,
                         right: 0,
                         child: Container(
-                          height: 3,
+                          height: 2.5,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00E5FF),
+                            color: const Color(0xFF006A6B),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
-                                blurRadius: 12,
-                                spreadRadius: 3,
+                                color: const Color(0xFF26A69A).withValues(alpha: 0.5),
+                                blurRadius: 4,
+                                spreadRadius: 1,
                               ),
                             ],
                           ),
@@ -525,54 +566,76 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Diagnosis Title Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+          // Diagnosis Title Row: Adaptive layout
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 460;
+
+              final titleInfo = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      Text(
+                        res.condition,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF006A6B).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          res.confidencePercent,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF006A6B),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Classified via ${res.isLocalPyTorchEngine ? "PyTorch Dual-Branch Cross-Attn" : "Standalone Local Dart Engine"}',
+                    style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                  ),
+                ],
+              );
+
+              final urgencyBadge = UrgencyBadgeWidget(urgency: res.urgency, isLarge: !isCompact);
+
+              if (isCompact) {
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          res.condition,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF0F172A),
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF006A6B).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            res.confidencePercent,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF006A6B),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Classified via ${res.isLocalPyTorchEngine ? "PyTorch Dual-Branch Cross-Attn" : "Standalone Local Dart Engine"}',
-                      style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
-                    ),
+                    titleInfo,
+                    const SizedBox(height: 10),
+                    urgencyBadge,
                   ],
-                ),
-              ),
-              UrgencyBadgeWidget(urgency: res.urgency, isLarge: true),
-            ],
+                );
+              } else {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: titleInfo),
+                    const SizedBox(width: 10),
+                    urgencyBadge,
+                  ],
+                );
+              }
+            },
           ),
 
           const Divider(height: 24),

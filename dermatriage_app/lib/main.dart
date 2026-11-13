@@ -85,10 +85,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               ),
             ),
             const SizedBox(width: 12),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   'Dermatriage',
                   style: TextStyle(
                     fontSize: 18,
@@ -97,42 +98,61 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                     color: Color(0xFF0F172A),
                   ),
                 ),
-                Text(
-                  'Cross-Attention Exanthem Classification',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF64748B),
+                if (width >= 600)
+                  const Text(
+                    'Cross-Attention Exanthem Classification',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
                   ),
-                ),
               ],
             ),
           ],
         ),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6FFFA),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF26A69A).withValues(alpha: 0.4)),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.hub_rounded, size: 14, color: Color(0xFF006A6B)),
-                SizedBox(width: 6),
-                Text(
-                  'Dual-Branch CNN–ViT',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF006A6B),
+          if (width >= 620)
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE6FFFA),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF26A69A).withValues(alpha: 0.4)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.hub_rounded, size: 14, color: Color(0xFF006A6B)),
+                  SizedBox(width: 6),
+                  Text(
+                    'Dual-Branch CNN–ViT',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF006A6B),
+                    ),
                   ),
+                ],
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Tooltip(
+                message: 'Dual-Branch CNN–ViT Architecture',
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE6FFFA),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF26A69A).withValues(alpha: 0.4)),
+                  ),
+                  child: const Icon(Icons.hub_rounded, size: 16, color: Color(0xFF006A6B)),
                 ),
-              ],
+              ),
             ),
-          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),

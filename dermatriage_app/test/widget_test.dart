@@ -87,5 +87,16 @@ void main() {
 
       expect(find.text('Dermatriage'), findsOneWidget);
     });
+
+    testWidgets('Responsive layouts adapt to mobile screen size', (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const DermatriageApp());
+      await tester.pump();
+
+      expect(find.text('Dermatriage'), findsOneWidget);
+    });
   });
 }

@@ -31,23 +31,26 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
       orElse: () => ExanthemInfo.allExanthems.first,
     );
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isCompact = screenWidth < 600;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
           // Subheader & Search bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: isCompact ? 16 : 24, vertical: 12),
             color: Colors.white,
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Search exanthem morphology, virus, or symptoms...',
+                      hintText: isCompact ? 'Search exanthems...' : 'Search exanthem morphology, virus, or symptoms...',
                       prefixIcon: const Icon(Icons.search_rounded, size: 20),
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       filled: true,
                       fillColor: const Color(0xFFF1F5F9),
                       border: OutlineInputBorder(
@@ -58,7 +61,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     onChanged: (val) => setState(() => _searchQuery = val),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 10),
                 OutlinedButton.icon(
                   onPressed: () {
                     setState(() {
@@ -69,7 +72,11 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     _showComparisonMatrix ? Icons.view_agenda_rounded : Icons.table_chart_rounded,
                     size: 18,
                   ),
-                  label: Text(_showComparisonMatrix ? 'Detailed Profiles' : 'Differential Matrix'),
+                  label: Text(
+                    _showComparisonMatrix
+                        ? (isCompact ? 'Profiles' : 'Detailed Profiles')
+                        : (isCompact ? 'Matrix' : 'Differential Matrix'),
+                  ),
                 ),
               ],
             ),
@@ -80,327 +87,491 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
           Expanded(
             child: _showComparisonMatrix
                 ? _buildComparisonMatrixView()
-                : _buildMasterDetailView(filtered, selectedExanthem),
+                : _buildResponsiveMasterDetail(filtered, selectedExanthem),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMasterDetailView(List<ExanthemInfo> filtered, ExanthemInfo selected) {
-    return Row(
-      children: [
-        // Left Column: Exanthem List Selector
-        Container(
-          width: 320,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(right: BorderSide(color: Color(0xFFE2E8F0))),
-          ),
-          child: ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: filtered.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 6),
-            itemBuilder: (context, idx) {
-              final ex = filtered[idx];
-              final isSelected = ex.id == selected.id;
-              return InkWell(
-                onTap: () => setState(() => _selectedId = ex.id),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFE6FFFA) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? const Color(0xFF006A6B) : Colors.transparent,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              ex.name,
-                              style: TextStyle(
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                                fontSize: 14,
-                                color: isSelected ? const Color(0xFF006A6B) : const Color(0xFF0F172A),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          UrgencyBadgeWidget(urgency: ex.triagePriority),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        ex.pathogen,
-                        style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        ex.morphologySummary,
-                        style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+  Widget _buildResponsiveMasterDetail(List<ExanthemInfo> filtered, ExanthemInfo selected) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 800;
 
-        // Right Column: Comprehensive Clinical Profile
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top header card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
+        if (isDesktop) {
+          return Row(
+            children: [
+              // Left Column: Exanthem List Selector
+              Container(
+                width: 300,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(right: BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: filtered.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 6),
+                  itemBuilder: (context, idx) {
+                    final ex = filtered[idx];
+                    final isSelected = ex.id == selected.id;
+                    return InkWell(
+                      onTap: () => setState(() => _selectedId = ex.id),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFE6FFFA) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF006A6B) : Colors.transparent,
+                            width: 1.5,
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  selected.name,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF0F172A),
+                                Expanded(
+                                  child: Text(
+                                    ex.name,
+                                    style: TextStyle(
+                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                                      fontSize: 14,
+                                      color: isSelected ? const Color(0xFF006A6B) : const Color(0xFF0F172A),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                UrgencyBadgeWidget(urgency: selected.triagePriority, isLarge: true),
+                                const SizedBox(width: 4),
+                                UrgencyBadgeWidget(urgency: ex.triagePriority),
                               ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              ex.pathogen,
+                              style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Etiology: ${selected.pathogen} • Family: ${selected.virusFamily}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF006A6B),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              selected.morphologySummary,
-                              style: const TextStyle(
-                                fontSize: 13.5,
-                                color: Color(0xFF334155),
-                                height: 1.45,
-                              ),
+                              ex.morphologySummary,
+                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      // Model Metrics Box
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFCBD5E1)),
+                    );
+                  },
+                ),
+              ),
+
+              // Right Column: Comprehensive Clinical Profile
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: _buildDetailContent(selected, constraints.maxWidth - 300),
+                ),
+              ),
+            ],
+          );
+        } else {
+          // Mobile/Tablet reflow: Horizontal Exanthem Selector + Full-width Detail Content
+          return Column(
+            children: [
+              // Top Horizontal Scrollable Exanthem Selector
+              Container(
+                height: 52,
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  itemCount: filtered.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  itemBuilder: (context, idx) {
+                    final ex = filtered[idx];
+                    final isSelected = ex.id == selected.id;
+                    return ChoiceChip(
+                      selected: isSelected,
+                      showCheckmark: false,
+                      selectedColor: const Color(0xFF006A6B),
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      side: BorderSide(
+                        color: isSelected ? const Color(0xFF006A6B) : const Color(0xFFCBD5E1),
+                      ),
+                      label: Text(
+                        ex.name,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: isSelected ? Colors.white : const Color(0xFF334155),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Model Benchmark',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF64748B),
-                                letterSpacing: 0.5,
-                              ),
+                      ),
+                      onSelected: (_) => setState(() => _selectedId = ex.id),
+                    );
+                  },
+                ),
+              ),
+              const Divider(height: 1, color: Color(0xFFE2E8F0)),
+
+              // Full-width Detail Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildDetailContent(selected, constraints.maxWidth),
+                ),
+              ),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildDetailContent(ExanthemInfo selected, double availableWidth) {
+    final isCompact = availableWidth < 720;
+
+    final headerCard = Container(
+      padding: EdgeInsets.all(isCompact ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: isCompact
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  runSpacing: 6,
+                  children: [
+                    Text(
+                      selected.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    UrgencyBadgeWidget(urgency: selected.triagePriority),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Etiology: ${selected.pathogen} • Family: ${selected.virusFamily}',
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF006A6B),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  selected.morphologySummary,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF334155),
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                // Full-width Model Metrics Box on Mobile
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Model Benchmark (Held-Out Test Split)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 6,
+                        children: [
+                          _buildStatRow('Test F1', '${(selected.modelF1 * 100).toStringAsFixed(1)}%'),
+                          _buildStatRow('Precision', '${(selected.modelPrecision * 100).toStringAsFixed(1)}%'),
+                          _buildStatRow('Recall', '${(selected.modelRecall * 100).toStringAsFixed(1)}%'),
+                          _buildStatRow('Support', '${selected.modelSupport} samples'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            selected.name,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F172A),
                             ),
-                            const SizedBox(height: 6),
-                            _buildStatRow('Test F1-Score', '${(selected.modelF1 * 100).toStringAsFixed(1)}%'),
-                            _buildStatRow('Precision', '${(selected.modelPrecision * 100).toStringAsFixed(1)}%'),
-                            _buildStatRow('Recall', '${(selected.modelRecall * 100).toStringAsFixed(1)}%'),
-                            _buildStatRow('Held-out Support', '${selected.modelSupport} samples'),
-                          ],
+                          ),
+                          const SizedBox(width: 12),
+                          UrgencyBadgeWidget(urgency: selected.triagePriority, isLarge: true),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Etiology: ${selected.pathogen} • Family: ${selected.virusFamily}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF006A6B),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        selected.morphologySummary,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          color: Color(0xFF334155),
+                          height: 1.45,
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 18),
-
-                // Clinical Case Samples Row
-                if (selected.sampleAssets.isNotEmpty) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(width: 20),
+                // Model Metrics Box on Desktop
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Verified MSLD v2.0 Test Split Samples',
+                        'Model Benchmark',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
+                          color: Color(0xFF64748B),
+                          letterSpacing: 0.5,
                         ),
                       ),
-                      Text(
-                        'Tap sample to load directly into Local Scan Section',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                      ),
+                      const SizedBox(height: 6),
+                      _buildStatRow('Test F1-Score', '${(selected.modelF1 * 100).toStringAsFixed(1)}%'),
+                      _buildStatRow('Precision', '${(selected.modelPrecision * 100).toStringAsFixed(1)}%'),
+                      _buildStatRow('Recall', '${(selected.modelRecall * 100).toStringAsFixed(1)}%'),
+                      _buildStatRow('Held-out Support', '${selected.modelSupport} samples'),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: selected.sampleAssets.asMap().entries.map((entry) {
-                      final idx = entry.key;
-                      final assetPath = entry.value;
-                      return Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(right: idx == 0 ? 14 : 0),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
-                          ),
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(
-                                  assetPath,
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Container(
-                                    width: 80,
-                                    height: 80,
-                                    color: Colors.grey.shade200,
-                                    child: const Icon(Icons.image, color: Colors.grey),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Test Case #${idx + 1}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF0F172A),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      'Ground truth: ${selected.name}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    ElevatedButton.icon(
-                                      onPressed: () => widget.onSelectForScan(assetPath, selected.name),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                      ),
-                                      icon: const Icon(Icons.bolt_rounded, size: 14),
-                                      label: const Text('Evaluate in Scan'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-
-                // Grid of detailed clinical characteristics
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column
-                    Expanded(
-                      child: Column(
-                        children: [
-                          _buildDetailCard(
-                            title: 'Lesion Progression & Synchronization',
-                            icon: Icons.timeline_rounded,
-                            content: selected.lesionEvolution,
-                          ),
-                          const SizedBox(height: 14),
-                          _buildDetailCard(
-                            title: 'Anatomical Predilection',
-                            icon: Icons.accessibility_new_rounded,
-                            content: selected.anatomicalDistribution,
-                          ),
-                          const SizedBox(height: 14),
-                          _buildDetailCard(
-                            title: 'Lymphadenopathy Profile',
-                            icon: Icons.bubble_chart_rounded,
-                            content: selected.lymphadenopathyProfile,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    // Right Column
-                    Expanded(
-                      child: Column(
-                        children: [
-                          _buildBulletCard(
-                            title: 'Clinical Hallmark Features',
-                            icon: Icons.checklist_rounded,
-                            items: selected.clinicalFeatures,
-                          ),
-                          const SizedBox(height: 14),
-                          _buildBulletCard(
-                            title: 'Differential Diagnostic Checkpoints',
-                            icon: Icons.compare_arrows_rounded,
-                            items: selected.differentialPoints,
-                          ),
-                          const SizedBox(height: 14),
-                          _buildRedFlagsCard(selected.redFlags),
-                          const SizedBox(height: 14),
-                          _buildIsolationCard(selected.isolationGuideline),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
+    );
+
+    // Samples row or column
+    Widget buildSamplesSection() {
+      if (selected.sampleAssets.isEmpty) return const SizedBox.shrink();
+
+      final isSampleCompact = availableWidth < 550;
+
+      final sampleCards = selected.sampleAssets.asMap().entries.map((entry) {
+        final idx = entry.key;
+        final assetPath = entry.value;
+        final cardWidget = Container(
+          margin: EdgeInsets.only(
+            right: !isSampleCompact && idx == 0 ? 12 : 0,
+            bottom: isSampleCompact ? 10 : 0,
           ),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  assetPath,
+                  width: isSampleCompact ? 68 : 80,
+                  height: isSampleCompact ? 68 : 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Test Case #${idx + 1}',
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ground truth: ${selected.name}',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Colors.grey.shade600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    ElevatedButton.icon(
+                      onPressed: () => widget.onSelectForScan(assetPath, selected.name),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        textStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                      ),
+                      icon: const Icon(Icons.bolt_rounded, size: 14),
+                      label: const Text('Evaluate in Scan'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+        return isSampleCompact ? cardWidget : Expanded(child: cardWidget);
+      }).toList();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Verified MSLD v2.0 Test Split Samples',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              if (!isSampleCompact)
+                Text(
+                  'Tap sample to load directly into Local Scan Section',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (isSampleCompact)
+            Column(children: sampleCards)
+          else
+            Row(children: sampleCards),
+          const SizedBox(height: 20),
+        ],
+      );
+    }
+
+    final leftDetailCards = Column(
+      children: [
+        _buildDetailCard(
+          title: 'Lesion Progression & Synchronization',
+          icon: Icons.timeline_rounded,
+          content: selected.lesionEvolution,
         ),
+        const SizedBox(height: 14),
+        _buildDetailCard(
+          title: 'Anatomical Predilection',
+          icon: Icons.accessibility_new_rounded,
+          content: selected.anatomicalDistribution,
+        ),
+        const SizedBox(height: 14),
+        _buildDetailCard(
+          title: 'Lymphadenopathy Profile',
+          icon: Icons.bubble_chart_rounded,
+          content: selected.lymphadenopathyProfile,
+        ),
+      ],
+    );
+
+    final rightDetailCards = Column(
+      children: [
+        _buildBulletCard(
+          title: 'Clinical Hallmark Features',
+          icon: Icons.checklist_rounded,
+          items: selected.clinicalFeatures,
+        ),
+        const SizedBox(height: 14),
+        _buildBulletCard(
+          title: 'Differential Diagnostic Checkpoints',
+          icon: Icons.compare_arrows_rounded,
+          items: selected.differentialPoints,
+        ),
+        const SizedBox(height: 14),
+        _buildRedFlagsCard(selected.redFlags),
+        const SizedBox(height: 14),
+        _buildIsolationCard(selected.isolationGuideline),
+      ],
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        headerCard,
+        const SizedBox(height: 18),
+        buildSamplesSection(),
+        if (isCompact)
+          Column(
+            children: [
+              leftDetailCards,
+              const SizedBox(height: 14),
+              rightDetailCards,
+            ],
+          )
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: leftDetailCards),
+              const SizedBox(width: 14),
+              Expanded(child: rightDetailCards),
+            ],
+          ),
       ],
     );
   }

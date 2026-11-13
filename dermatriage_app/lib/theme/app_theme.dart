@@ -28,6 +28,17 @@ class AppTheme {
   static const Color level4GreenBg = Color(0xFFECFDF5);
   static const Color level4GreenBorder = Color(0xFF6EE7B7);
 
+  // Responsive Breakpoints
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < 768;
+
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 768 &&
+      MediaQuery.of(context).size.width < 1024;
+
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 1024;
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -46,7 +57,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(
           color: surfaceSlate,
-          fontSize: 19,
+          fontSize: 18,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.3,
         ),
@@ -55,7 +66,7 @@ class AppTheme {
         color: cardLight,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           side: const BorderSide(color: borderSubtle, width: 1),
         ),
         margin: EdgeInsets.zero,
@@ -65,12 +76,12 @@ class AppTheme {
           backgroundColor: primaryTeal,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
           textStyle: const TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -78,13 +89,13 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryTeal,
-          side: const BorderSide(color: primaryTeal, width: 1.5),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          side: const BorderSide(color: primaryTeal, width: 1.3),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
           textStyle: const TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),

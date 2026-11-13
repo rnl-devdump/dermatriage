@@ -8,11 +8,18 @@ class SampleSelectorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isCompact = screenWidth < 500;
+
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: 580,
-        padding: const EdgeInsets.all(24),
+        constraints: BoxConstraints(
+          maxWidth: 580,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        width: screenWidth * 0.94,
+        padding: EdgeInsets.all(isCompact ? 16 : 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -20,23 +27,25 @@ class SampleSelectorDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Verified MSLD v2.0 Test Cases',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F172A),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Verified MSLD v2.0 Test Cases',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Select a clinical test case from the held-out evaluation split',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                    ),
-                  ],
+                      SizedBox(height: 3),
+                      Text(
+                        'Select a clinical test case from the held-out evaluation split',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
@@ -45,8 +54,7 @@ class SampleSelectorDialog extends StatelessWidget {
               ],
             ),
             const Divider(height: 24),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 460),
+            Flexible(
               child: SingleChildScrollView(
                 child: Column(
                   children: ExanthemInfo.allExanthems.map((ex) {
@@ -64,12 +72,15 @@ class SampleSelectorDialog extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                ex.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                  color: Color(0xFF006A6B),
+                              Expanded(
+                                child: Text(
+                                  ex.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: Color(0xFF006A6B),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               Text(
@@ -82,18 +93,22 @@ class SampleSelectorDialog extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Row(
-                            children: ex.sampleAssets.map((path) {
-                              final sampleNum = path.contains('sample_1') ? 'Case 1' : 'Case 2';
-                              return Expanded(
-                                child: InkWell(
+                          LayoutBuilder(
+                            builder: (context, boxConstraints) {
+                              final isNarrow = boxConstraints.maxWidth < 360;
+                              final items = ex.sampleAssets.map((path) {
+                                final sampleNum = path.contains('sample_1') ? 'Case 1' : 'Case 2';
+                                final card = InkWell(
                                   onTap: () {
                                     Navigator.pop(context);
                                     onSelectSample(path, ex.name);
                                   },
                                   borderRadius: BorderRadius.circular(8),
                                   child: Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: isNarrow ? 0 : 4,
+                                      vertical: isNarrow ? 4 : 0,
+                                    ),
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
@@ -106,18 +121,18 @@ class SampleSelectorDialog extends StatelessWidget {
                                           borderRadius: BorderRadius.circular(6),
                                           child: Image.asset(
                                             path,
-                                            width: 48,
-                                            height: 48,
+                                            width: 44,
+                                            height: 44,
                                             fit: BoxFit.cover,
                                             errorBuilder: (context, error, stackTrace) => Container(
-                                              width: 48,
-                                              height: 48,
+                                              width: 44,
+                                              height: 44,
                                               color: Colors.grey.shade200,
-                                              child: const Icon(Icons.image, size: 24, color: Colors.grey),
+                                              child: const Icon(Icons.image, size: 22, color: Colors.grey),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 10),
+                                        const SizedBox(width: 8),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +140,7 @@ class SampleSelectorDialog extends StatelessWidget {
                                               Text(
                                                 sampleNum,
                                                 style: const TextStyle(
-                                                  fontSize: 12.5,
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
@@ -142,9 +157,12 @@ class SampleSelectorDialog extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                                return isNarrow ? card : Expanded(child: card);
+                              }).toList();
+
+                              return isNarrow ? Column(children: items) : Row(children: items);
+                            },
                           ),
                         ],
                       ),

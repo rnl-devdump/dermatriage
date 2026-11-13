@@ -41,37 +41,43 @@ class ProbabilityBarWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: isTopClass ? FontWeight.w700 : FontWeight.w500,
-                      color: isTopClass ? const Color(0xFF0F172A) : const Color(0xFF334155),
-                    ),
-                  ),
-                  if (isTopClass) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: barColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
                       child: Text(
-                        'PRIMARY',
+                        label,
                         style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
-                          color: barColor,
-                          letterSpacing: 0.5,
+                          fontSize: 13.5,
+                          fontWeight: isTopClass ? FontWeight.w700 : FontWeight.w500,
+                          color: isTopClass ? const Color(0xFF0F172A) : const Color(0xFF334155),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isTopClass) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: barColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'PRIMARY',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: barColor,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '$pct%',
                 style: TextStyle(

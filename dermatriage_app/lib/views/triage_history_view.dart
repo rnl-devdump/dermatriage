@@ -16,16 +16,20 @@ class _TriageHistoryViewState extends State<TriageHistoryView> {
   @override
   Widget build(BuildContext context) {
     final records = _history.records;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: isMobile ? 16 : 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12,
+              runSpacing: 10,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,6 +83,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView> {
                       const Text(
                         'When you classify skin lesions in the Scan section, records are automatically preserved here.',
                         style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -108,40 +113,44 @@ class _TriageHistoryViewState extends State<TriageHistoryView> {
                               borderRadius: BorderRadius.circular(10),
                               child: Image.memory(
                                 item.imageBytes!,
-                                width: 72,
-                                height: 72,
+                                width: isMobile ? 60 : 72,
+                                height: isMobile ? 60 : 72,
                                 fit: BoxFit.cover,
                               ),
                             )
                           else
                             Container(
-                              width: 72,
-                              height: 72,
+                              width: isMobile ? 60 : 72,
+                              height: isMobile ? 60 : 72,
                               decoration: BoxDecoration(
                                 color: const Color(0xFFE2E8F0),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Icon(Icons.image, color: Colors.grey),
                             ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                Wrap(
+                                  alignment: WrapAlignment.spaceBetween,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 4,
                                   children: [
-                                    Row(
+                                    Wrap(
+                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                      spacing: 8,
                                       children: [
                                         Text(
                                           item.condition,
-                                          style: const TextStyle(
-                                            fontSize: 17,
+                                          style: TextStyle(
+                                            fontSize: isMobile ? 15 : 17,
                                             fontWeight: FontWeight.w700,
-                                            color: Color(0xFF0F172A),
+                                            color: const Color(0xFF0F172A),
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
                                         Text(
                                           item.confidencePercent,
                                           style: const TextStyle(
@@ -172,8 +181,10 @@ class _TriageHistoryViewState extends State<TriageHistoryView> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                Wrap(
+                                  alignment: WrapAlignment.spaceBetween,
+                                  spacing: 8,
+                                  runSpacing: 4,
                                   children: [
                                     Text(
                                       'Recorded: $dateStr',

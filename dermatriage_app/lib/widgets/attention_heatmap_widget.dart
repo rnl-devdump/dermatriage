@@ -55,44 +55,42 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Vision Transformer Cross-Attention Map (14×14 Patches)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Vision Transformer Cross-Attention Map (14×14 Patches)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
                   ),
-                ),
-                Text(
-                  'Local ResNet-50 query attending to 196 ViT-B/16 spatial patch tokens',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: Colors.grey.shade600,
+                  Text(
+                    'Local ResNet-50 query attending to 196 ViT-B/16 spatial patch tokens',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            Row(
-              children: [
-                IconButton(
-                  tooltip: _showGridLines ? 'Hide Grid' : 'Show Grid',
-                  icon: Icon(
-                    _showGridLines ? Icons.grid_on_rounded : Icons.grid_off_rounded,
-                    size: 18,
-                    color: Colors.grey.shade700,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _showGridLines = !_showGridLines;
-                    });
-                  },
-                ),
-              ],
+            IconButton(
+              tooltip: _showGridLines ? 'Hide Grid' : 'Show Grid',
+              icon: Icon(
+                _showGridLines ? Icons.grid_on_rounded : Icons.grid_off_rounded,
+                size: 18,
+                color: Colors.grey.shade700,
+              ),
+              onPressed: () {
+                setState(() {
+                  _showGridLines = !_showGridLines;
+                });
+              },
             ),
           ],
         ),
