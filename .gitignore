@@ -1,0 +1,47 @@
+# Miscellaneous
+*.docx
+TAWIR*
+* (1).*
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# Flutter / Dart
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/coverage/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Large checkpoints (stored externally on GDrive/Desktop outputs)
+*.pth
+*.pt
+*.bin
+*.onnx
+msld/
+mcvsld/
