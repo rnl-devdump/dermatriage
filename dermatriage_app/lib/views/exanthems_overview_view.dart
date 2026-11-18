@@ -2,18 +2,21 @@ import 'package:flutter/material.dart';
 import '../models/exanthem_info.dart';
 import '../widgets/urgency_badge_widget.dart';
 import '../theme/app_theme.dart';
+import '../widgets/poster.dart';
 
 class ExanthemsOverviewView extends StatefulWidget {
   final Function(String sampleAsset, String className) onSelectForScan;
+  /// Class to open first, e.g. from the word wall on the overview.
+  final String? initialId;
 
-  const ExanthemsOverviewView({super.key, required this.onSelectForScan});
+  const ExanthemsOverviewView({super.key, required this.onSelectForScan, this.initialId});
 
   @override
   State<ExanthemsOverviewView> createState() => _ExanthemsOverviewViewState();
 }
 
 class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
-  String _selectedId = 'mpox';
+  late String _selectedId = widget.initialId ?? 'mpox';
   String _searchQuery = '';
   bool _showComparisonMatrix = false;
 
@@ -21,7 +24,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         child: Container(
           constraints: const BoxConstraints(maxWidth: 600),
           padding: const EdgeInsets.all(16),
@@ -35,7 +38,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     child: Text(
                       title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         fontSize: 15,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -49,7 +52,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
               ),
               const SizedBox(height: 10),
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.zero,
                 child: Image.asset(assetPath, fit: BoxFit.contain),
               ),
             ],
@@ -85,13 +88,17 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
           : AppTheme.backgroundLight,
       body: Column(
         children: [
-          // Subheader & Search bar
+          const WorkspaceHeader(
+            title: 'Exanthem Library',
+            lead: 'Hallmarks, differentials, and isolation guidance for the six classes, with verified test cases you can send straight to a scan.',
+          ),
+          // Search and matrix toggle
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isCompact ? 14 : 24,
-              vertical: 12,
+              horizontal: isCompact ? 20 : 40,
+              vertical: 14,
             ),
-            color: isDark ? AppTheme.cardDark : Colors.white,
+            color: isDark ? AppTheme.paperDark : AppTheme.paper,
             child: Row(
               children: [
                 Expanded(
@@ -114,10 +121,10 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                       ),
                       filled: true,
                       fillColor: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9),
+                          ? AppTheme.surfaceElevatedDark
+                          : AppTheme.surfaceElevatedLight,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.zero,
                         borderSide: BorderSide.none,
                       ),
                     ),
@@ -189,7 +196,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
               Container(
                 width: 320,
                 decoration: BoxDecoration(
-                  color: isDark ? AppTheme.cardDark : Colors.white,
+                  color: isDark ? AppTheme.cardDark : AppTheme.band,
                   border: Border(
                     right: BorderSide(
                       color: isDark
@@ -208,7 +215,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     final isSelected = ex.id == selected.id;
                     return InkWell(
                       onTap: () => setState(() => _selectedId = ex.id),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.zero,
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -217,9 +224,9 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                                     ? AppTheme.primaryTeal.withValues(
                                         alpha: 0.25,
                                       )
-                                    : const Color(0xFFE6FFFA))
+                                    : AppTheme.tealWash)
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.zero,
                           border: Border.all(
                             color: isSelected
                                 ? (isDark
@@ -232,15 +239,17 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
+                                SizedBox(
+                                  width: double.infinity,
                                   child: Text(
                                     ex.name,
                                     style: TextStyle(
                                       fontWeight: isSelected
-                                          ? FontWeight.w700
-                                          : FontWeight.w600,
+                                          ? FontWeight.w500
+                                          : FontWeight.w400,
                                       fontSize: 14,
                                       color: isSelected
                                           ? (isDark
@@ -250,10 +259,10 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                                                 ? AppTheme.textPrimaryDark
                                                 : AppTheme.textPrimaryLight),
                                     ),
-                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
+                                const SizedBox(height: 6),
                                 UrgencyBadgeWidget(urgency: ex.triagePriority),
                               ],
                             ),
@@ -264,7 +273,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                                 fontSize: 11.5,
                                 color: isDark
                                     ? AppTheme.textMutedDark
-                                    : const Color(0xFF64748B),
+                                    : AppTheme.textMutedLight,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -276,7 +285,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                                 fontSize: 11.5,
                                 color: isDark
                                     ? AppTheme.textSecondaryDark
-                                    : const Color(0xFF475569),
+                                    : AppTheme.textSecondaryLight,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -329,7 +338,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
               // Top Horizontal Scrollable Exanthem Selector
               Container(
                 height: 54,
-                color: isDark ? AppTheme.cardDark : Colors.white,
+                color: isDark ? AppTheme.cardDark : AppTheme.band,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
@@ -347,29 +356,29 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                           ? AppTheme.primaryTeal
                           : const Color(0xFF006A6B),
                       backgroundColor: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9),
+                          ? AppTheme.surfaceElevatedDark
+                          : AppTheme.surfaceElevatedLight,
                       side: BorderSide(
                         color: isSelected
                             ? (isDark
                                   ? AppTheme.tealAccentDark
                                   : const Color(0xFF006A6B))
                             : (isDark
-                                  ? const Color(0xFF334155)
-                                  : const Color(0xFFCBD5E1)),
+                                  ? AppTheme.inkSlate
+                                  : AppTheme.borderSubtleLight),
                       ),
                       label: Text(
                         ex.name,
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
+                              ? FontWeight.w500
+                              : FontWeight.w400,
                           color: isSelected
                               ? Colors.white
                               : (isDark
                                     ? AppTheme.textSecondaryDark
-                                    : const Color(0xFF334155)),
+                                    : AppTheme.inkSlate),
                         ),
                       ),
                       onSelected: (_) => setState(() => _selectedId = ex.id),
@@ -420,8 +429,8 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
     final headerCard = Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? AppTheme.cardDark : AppTheme.band,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderFocusedDark
@@ -432,31 +441,20 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        selected.name,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? AppTheme.textPrimaryDark
-                              : AppTheme.textPrimaryLight,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    UrgencyBadgeWidget(urgency: selected.triagePriority),
-                  ],
+                Display(
+                  selected.name,
+                  size: 44,
+                  height: 0.95,
+                  color: isDark ? AppTheme.pale : AppTheme.ink,
                 ),
+                const SizedBox(height: 12),
+                UrgencyBadgeWidget(urgency: selected.triagePriority),
                 const SizedBox(height: 6),
                 Text(
                   'Etiology: ${selected.pathogen} • Family: ${selected.virusFamily}',
                   style: TextStyle(
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: isDark
                         ? AppTheme.tealAccentDark
                         : AppTheme.primaryTeal,
@@ -469,7 +467,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     fontSize: 13,
                     color: isDark
                         ? AppTheme.textSecondaryDark
-                        : const Color(0xFF334155),
+                        : AppTheme.inkSlate,
                     height: 1.45,
                   ),
                 ),
@@ -477,29 +475,25 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                 // Model Metrics Box on Mobile
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.only(top: 12),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFCBD5E1),
+                    border: Border(
+                      top: BorderSide(
+                        color: isDark ? AppTheme.borderSubtleDark : AppTheme.borderSubtleLight,
+                      ),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Model Benchmark (Held-Out Test Split)',
+                        'Held-out test split',
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: isDark
                               ? AppTheme.textMutedDark
-                              : const Color(0xFF64748B),
+                              : AppTheme.textMutedLight,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -542,32 +536,23 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            selected.name,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: isDark
-                                  ? AppTheme.textPrimaryDark
-                                  : AppTheme.textPrimaryLight,
-                              letterSpacing: -0.4,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          UrgencyBadgeWidget(
-                            urgency: selected.triagePriority,
-                            isLarge: true,
-                          ),
-                        ],
+                      Display(
+                        selected.name,
+                        size: 72,
+                        height: 0.9,
+                        color: isDark ? AppTheme.pale : AppTheme.ink,
+                      ),
+                      const SizedBox(height: 14),
+                      UrgencyBadgeWidget(
+                        urgency: selected.triagePriority,
+                        isLarge: true,
                       ),
                       const SizedBox(height: 6),
                       Text(
                         'Etiology: ${selected.pathogen} • Family: ${selected.virusFamily}',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: isDark
                               ? AppTheme.tealAccentDark
                               : AppTheme.primaryTeal,
@@ -580,7 +565,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                           fontSize: 13.5,
                           color: isDark
                               ? AppTheme.textSecondaryDark
-                              : const Color(0xFF334155),
+                              : AppTheme.inkSlate,
                           height: 1.45,
                         ),
                       ),
@@ -588,33 +573,24 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                   ),
                 ),
                 const SizedBox(width: 20),
-                // Model Metrics Box on Desktop
+                // Held-out metrics: a ruled column beside the profile, not a box in a box
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.only(left: 20),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFCBD5E1),
+                    border: Border(
+                      left: BorderSide(
+                        color: isDark ? AppTheme.borderSubtleDark : AppTheme.borderSubtleLight,
+                      ),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Model Benchmark',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? AppTheme.textMutedDark
-                              : const Color(0xFF64748B),
-                          letterSpacing: 0.5,
-                        ),
+                      PosterLabel(
+                        'Held-out test split',
+                        color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondaryLight,
+                        size: 11.2,
+                        tracking: 0.5,
                       ),
                       const SizedBox(height: 6),
                       _buildStatRow(
@@ -633,7 +609,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                         isDark,
                       ),
                       _buildStatRow(
-                        'Held-out Support',
+                        'Support',
                         '${selected.modelSupport} samples',
                         isDark,
                       ),
@@ -660,8 +636,8 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
           ),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? AppTheme.cardDark : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            color: isDark ? AppTheme.cardDark : AppTheme.band,
+            borderRadius: BorderRadius.zero,
             border: Border.all(
               color: isDark
                   ? AppTheme.borderFocusedDark
@@ -675,18 +651,18 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                   assetPath,
                   '${selected.name} - Test Case #${idx + 1}',
                 ),
-                borderRadius: BorderRadius.circular(10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.zero,
+                child: ClipPath(
+                  clipper: const ArchClipper(),
                   child: Image.asset(
                     assetPath,
                     width: isSampleCompact ? 68 : 80,
-                    height: isSampleCompact ? 68 : 80,
+                    height: isSampleCompact ? 88 : 104,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       width: 70,
                       height: 70,
-                      color: isDark ? Colors.white10 : Colors.grey.shade200,
+                      color: isDark ? Colors.white10 : AppTheme.textMutedLight,
                       child: const Icon(Icons.image, color: Colors.grey),
                     ),
                   ),
@@ -701,7 +677,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                       'Test Case #${idx + 1}',
                       style: TextStyle(
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: isDark
                             ? AppTheme.textPrimaryDark
                             : AppTheme.textPrimaryLight,
@@ -714,7 +690,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                         fontSize: 11.5,
                         color: isDark
                             ? AppTheme.textMutedDark
-                            : Colors.grey.shade600,
+                            : AppTheme.textMutedLight,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -730,7 +706,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                         ),
                         textStyle: const TextStyle(
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       icon: const Icon(Icons.bolt_rounded, size: 14),
@@ -753,24 +729,24 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Verified MSLD v2.0 Test Split Samples',
+                'Verified test cases',
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppTheme.textPrimaryDark
-                      : const Color(0xFF0F172A),
+                      : AppTheme.textPrimaryLight,
                   letterSpacing: -0.2,
                 ),
               ),
               if (!isSampleCompact)
                 Text(
-                  'Tap sample to load directly into Local Scan Section',
+                  'Send a case straight to Scan',
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark
                         ? AppTheme.textMutedDark
-                        : Colors.grey.shade600,
+                        : AppTheme.textMutedLight,
                   ),
                 ),
             ],
@@ -866,26 +842,26 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 95,
+            width: 110,
             child: Text(
               label,
               style: TextStyle(
                 fontSize: 11,
                 color: isDark
                     ? AppTheme.textMutedDark
-                    : const Color(0xFF64748B),
+                    : AppTheme.textMutedLight,
               ),
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
+              fontFamily: AppTheme.mono,
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
               color: isDark
                   ? AppTheme.textPrimaryDark
-                  : const Color(0xFF0F172A),
-              fontFeatures: const [FontFeature.tabularFigures()],
+                  : AppTheme.textPrimaryLight,
             ),
           ),
         ],
@@ -903,8 +879,8 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? AppTheme.cardDark : AppTheme.band,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderFocusedDark
@@ -928,10 +904,10 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                 title,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppTheme.textPrimaryDark
-                      : const Color(0xFF0F172A),
+                      : AppTheme.textPrimaryLight,
                 ),
               ),
             ],
@@ -943,7 +919,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
               fontSize: 12.5,
               color: isDark
                   ? AppTheme.textSecondaryDark
-                  : const Color(0xFF334155),
+                  : AppTheme.inkSlate,
               height: 1.45,
             ),
           ),
@@ -962,8 +938,8 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? AppTheme.cardDark : AppTheme.band,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderFocusedDark
@@ -981,10 +957,10 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                 title,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppTheme.textPrimaryDark
-                      : const Color(0xFF0F172A),
+                      : AppTheme.textPrimaryLight,
                 ),
               ),
             ],
@@ -1013,7 +989,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                           fontSize: 12.5,
                           color: isDark
                               ? AppTheme.textSecondaryDark
-                              : const Color(0xFF334155),
+                              : AppTheme.inkSlate,
                           height: 1.4,
                         ),
                       ),
@@ -1034,7 +1010,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF450A0A) : const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark ? const Color(0xFF991B1B) : const Color(0xFFFCA5A5),
         ),
@@ -1054,7 +1030,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                 'Clinical Red Flags & Urgent Warnings',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFFDC2626),
                 ),
               ),
@@ -1082,7 +1058,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                         rf,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: isDark
                               ? const Color(0xFFFECACA)
                               : const Color(0xFF991B1B),
@@ -1104,10 +1080,10 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF172554) : const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? AppTheme.tealWashDark : AppTheme.tealWash,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isDark ? const Color(0xFF1D4ED8) : const Color(0xFF93C5FD),
+          color: isDark ? AppTheme.borderFocusedDark : AppTheme.borderSubtleLight,
         ),
       ),
       child: Column(
@@ -1118,19 +1094,15 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
               Icon(
                 Icons.health_and_safety_rounded,
                 size: 18,
-                color: isDark
-                    ? const Color(0xFF60A5FA)
-                    : const Color(0xFF2563EB),
+                color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
               ),
               const SizedBox(width: 8),
               Text(
-                'Infection Control & Isolation Protocol',
+                'Infection control and isolation',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? const Color(0xFF93C5FD)
-                      : const Color(0xFF1E40AF),
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? AppTheme.pale : AppTheme.ink,
                 ),
               ),
             ],
@@ -1140,7 +1112,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
             guideline,
             style: TextStyle(
               fontSize: 12.5,
-              color: isDark ? const Color(0xFFDBEAFE) : const Color(0xFF1E3A8A),
+              color: isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimaryLight,
               height: 1.4,
             ),
           ),
@@ -1154,8 +1126,8 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
       padding: const EdgeInsets.all(24),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? AppTheme.cardDark : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isDark ? AppTheme.cardDark : AppTheme.band,
+          borderRadius: BorderRadius.zero,
           border: Border.all(
             color: isDark
                 ? AppTheme.borderFocusedDark
@@ -1166,56 +1138,56 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             headingRowColor: WidgetStateProperty.all(
-              isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+              isDark ? AppTheme.surfaceElevatedDark : AppTheme.surfaceElevatedLight,
             ),
             columnSpacing: 22,
             columns: const [
               DataColumn(
                 label: Text(
                   'Exanthem',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Pathogen',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Lesion Morphology',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Progression',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Distribution',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Lymphadenopathy',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Triage Urgency',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
               DataColumn(
                 label: Text(
                   'Model F1',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -1226,7 +1198,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     Text(
                       ex.name,
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: isDark
                             ? AppTheme.tealAccentDark
                             : const Color(0xFF006A6B),
@@ -1258,7 +1230,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                                       : 'Localized Slow')),
                       style: const TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),
@@ -1281,7 +1253,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                           : 'Mild / Absent',
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: ex.id == 'mpox' || ex.id == 'cowpox'
                             ? const Color(0xFFDC2626)
                             : (isDark
@@ -1295,7 +1267,7 @@ class _ExanthemsOverviewViewState extends State<ExanthemsOverviewView> {
                     Text(
                       '${(ex.modelF1 * 100).toStringAsFixed(1)}%',
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: isDark
                             ? AppTheme.tealAccentDark
                             : const Color(0xFF006A6B),

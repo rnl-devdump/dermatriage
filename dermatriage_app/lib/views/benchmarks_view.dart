@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/benchmark_data.dart';
 import '../services/benchmark_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/poster.dart';
 
 class BenchmarksView extends StatefulWidget {
   const BenchmarksView({super.key});
@@ -86,10 +87,10 @@ class _BenchmarksViewState extends State<BenchmarksView>
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+        backgroundColor: isDark ? AppTheme.cardDark : AppTheme.band,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.zero,
           side: BorderSide(
             color: isDark
                 ? AppTheme.borderFocusedDark
@@ -114,7 +115,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         Text(
                           title,
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             fontSize: 16,
                             color: isDark
                                 ? AppTheme.textPrimaryDark
@@ -140,7 +141,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                     icon: const Icon(Icons.close_rounded),
                     color: isDark
                         ? AppTheme.textSecondaryDark
-                        : const Color(0xFF64748B),
+                        : AppTheme.textMutedLight,
                     tooltip: 'Close image view',
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -152,9 +153,9 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF090D14)
-                        : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
+                        ? AppTheme.paperDark
+                        : AppTheme.surfaceElevatedLight,
+                    borderRadius: BorderRadius.zero,
                     border: Border.all(
                       color: isDark
                           ? AppTheme.borderSubtleDark
@@ -252,7 +253,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
               'Loading Research Benchmark Logs...',
               style: TextStyle(
                 fontSize: 13.5,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 color: isDark
                     ? AppTheme.textSecondaryDark
                     : AppTheme.textSecondaryLight,
@@ -272,14 +273,14 @@ class _BenchmarksViewState extends State<BenchmarksView>
             Icon(
               Icons.warning_amber_rounded,
               size: 48,
-              color: isDark ? AppTheme.level2Amber : Colors.orange,
+              color: isDark ? AppTheme.level2Amber : AppTheme.ink,
             ),
             const SizedBox(height: 12),
             Text(
               'Benchmark data not available.',
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 color: isDark
                     ? AppTheme.textPrimaryDark
                     : AppTheme.textPrimaryLight,
@@ -303,8 +304,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
           position: _slideAnimation,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 14 : 24,
-              vertical: isMobile ? 14 : 20,
+              horizontal: isMobile ? 20 : 40,
+              vertical: isMobile ? 24 : 40,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,38 +338,20 @@ class _BenchmarksViewState extends State<BenchmarksView>
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
-                    .withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.analytics_rounded,
-                size: 22,
-                color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
-              ),
-            ),
-            const SizedBox(width: 12),
+            // Display title carries the header; no icon tile.
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Research Evaluation & Benchmarks',
-                    style: TextStyle(
-                      fontSize: isMobile ? 19 : 22,
-                      fontWeight: FontWeight.w800,
-                      color: isDark
-                          ? AppTheme.textPrimaryDark
-                          : AppTheme.textPrimaryLight,
-                      letterSpacing: -0.4,
-                    ),
+                  Display(
+                    'Benchmarks',
+                    size: isMobile ? 52 : 84,
+                    height: 0.86,
+                    color: isDark ? AppTheme.pale : AppTheme.ink,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Empirical 5-fold cross-validation & held-out patient-isolated test evaluations',
+                    'Cross-validation on patient-independent folds, plus a held-out test split.',
                     style: TextStyle(
                       fontSize: isMobile ? 11.5 : 12.5,
                       color: isDark
@@ -385,259 +368,91 @@ class _BenchmarksViewState extends State<BenchmarksView>
     );
   }
 
+  /// Headline figures as one ruled row of mono numerals on a teal band.
+  /// Values come only from benchmarks.json; a missing value shows as n/a.
   Widget _buildMetricCardsGrid(BenchmarkData data, bool isDark, bool isMobile) {
-    final proposed = data.fiveFoldSummary.firstWhere(
-      (m) => m['model'].toString().contains('Proposed'),
-      orElse: () =>
-          data.fiveFoldSummary.isNotEmpty ? data.fiveFoldSummary.first : {},
-    );
-    final cnn = data.fiveFoldSummary.firstWhere(
-      (m) => m['model'].toString().contains('Standalone CNN'),
-      orElse: () => {},
-    );
+    Map<String, dynamic> pick(String key) => data.fiveFoldSummary
+        .whereType<Map<String, dynamic>>()
+        .firstWhere((m) => m['model'].toString().contains(key), orElse: () => <String, dynamic>{});
+    double? val(Map<String, dynamic> m, String k) => (m[k] as num?)?.toDouble();
 
-    final cvF1Mean =
-        (proposed['val_macro_f1_mean'] as num?)?.toDouble() ?? 86.81;
-    final cvF1Std = (proposed['val_macro_f1_std'] as num?)?.toDouble() ?? 2.12;
+    final proposed = pick('Proposed');
+    final cnn = pick('Standalone CNN');
+    final cvMean = val(proposed, 'val_macro_f1_mean');
+    final cvStd = val(proposed, 'val_macro_f1_std');
+    final accMean = val(proposed, 'test_acc_mean');
+    final accStd = val(proposed, 'test_acc_std');
+    final f1Mean = val(proposed, 'test_f1_mean');
+    final f1Std = val(proposed, 'test_f1_std');
+    final cnnCv = val(cnn, 'val_macro_f1_mean');
+    final delta = (cvMean != null && cnnCv != null) ? cvMean - cnnCv : null;
 
-    final testAccMean =
-        (proposed['test_acc_mean'] as num?)?.toDouble() ?? 82.24;
-    final testAccStd = (proposed['test_acc_std'] as num?)?.toDouble() ?? 4.26;
-
-    final testF1Mean = (proposed['test_f1_mean'] as num?)?.toDouble() ?? 81.28;
-    final testF1Std = (proposed['test_f1_std'] as num?)?.toDouble() ?? 5.02;
-
-    final cnnValF1 = (cnn['val_macro_f1_mean'] as num?)?.toDouble() ?? 77.29;
-    final diffF1 = cvF1Mean - cnnValF1;
+    const pale = AppTheme.pale;
+    final soft = AppTheme.pale.withValues(alpha: 0.82);
+    final rule = AppTheme.pale.withValues(alpha: 0.25);
 
     return AnimatedBuilder(
       animation: _countAnimation,
       builder: (context, _) {
-        final progress = _countAnimation.value;
-        final cvF1Val = (cvF1Mean * progress).toStringAsFixed(2);
-        final testAccVal = (testAccMean * progress).toStringAsFixed(2);
-        final testF1Val = (testF1Mean * progress).toStringAsFixed(2);
+        final t = _countAnimation.value;
+        String pct(double? v) => v == null ? 'n/a' : '${(v * t).toStringAsFixed(2)}%';
+        String sd(double? v) => v == null ? '' : '± ${v.toStringAsFixed(2)} SD';
 
-        final cards = [
-          _buildMetricCard(
-            title: '5-Fold Cross-Val F1',
-            value: '$cvF1Val%',
-            subtext: '± ${cvF1Std.toStringAsFixed(2)}% Std Dev',
-            badge:
-                '${diffF1 >= 0 ? '+' : ''}${diffF1.toStringAsFixed(2)}% vs CNN',
-            badgePositive: diffF1 >= 0,
-            icon: Icons.auto_graph_rounded,
-            accentColor: isDark
-                ? AppTheme.tealAccentDark
-                : AppTheme.primaryTeal,
-            isDark: isDark,
-          ),
-          _buildMetricCard(
-            title: 'Mean Held-Out Accuracy',
-            value: '$testAccVal%',
-            subtext: '± ${testAccStd.toStringAsFixed(2)}% (Held-Out Test)',
-            badge: 'Patient-Isolated',
-            badgePositive: true,
-            icon: Icons.check_circle_outline_rounded,
-            accentColor: const Color(0xFF0284C7),
-            isDark: isDark,
-          ),
-          _buildMetricCard(
-            title: 'Test Macro F1-Score',
-            value: '$testF1Val%',
-            subtext: '± ${testF1Std.toStringAsFixed(2)}% (6 Exanthem Classes)',
-            badge: 'Balanced Score',
-            badgePositive: true,
-            icon: Icons.leaderboard_rounded,
-            accentColor: const Color(0xFF10B981),
-            isDark: isDark,
-          ),
-          _buildMetricCard(
-            title: 'Fusion Paradigm',
-            value: 'Dual-Branch',
-            subtext: 'ViT-B/16 Global × ResNet-50 Local',
-            badge: 'Cross-Attention',
-            badgePositive: true,
-            icon: Icons.hub_rounded,
-            accentColor: const Color(0xFF8B5CF6),
-            isDark: isDark,
+        Widget stat(String label, double? mean, double? std, String caption) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PosterLabel(label, color: soft, size: 11.2, tracking: 0.6),
+                const SizedBox(height: 14),
+                Text(pct(mean), style: AppTheme.monoStyle(isMobile ? 32 : 40, pale, weight: FontWeight.w300)),
+                const SizedBox(height: 6),
+                Text(sd(std), style: AppTheme.monoStyle(13, soft, weight: FontWeight.w300)),
+                const SizedBox(height: 12),
+                Text(caption, style: TextStyle(fontSize: 13, height: 1.3, fontWeight: FontWeight.w300, color: soft)),
+              ],
+            );
+
+        final cols = <Widget>[
+          stat('Validation macro F1', cvMean, cvStd,
+              delta == null ? 'Mean across folds' : 'Mean across folds, ${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(2)} points over ResNet-50 alone'),
+          stat('Held-out accuracy', accMean, accStd, 'Patient-independent test split'),
+          stat('Held-out macro F1', f1Mean, f1Std, 'Averaged over the six classes'),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PosterLabel('Fusion', color: soft, size: 11.2, tracking: 0.6),
+              const SizedBox(height: 10),
+              Display('Dual-branch', size: isMobile ? 40 : 48, color: pale, height: 1.0),
+              const SizedBox(height: 12),
+              Text('ViT-B/16 for the whole image, ResNet-50 for local texture, joined by cross-attention',
+                  style: TextStyle(fontSize: 13, height: 1.3, fontWeight: FontWeight.w300, color: soft)),
+            ],
           ),
         ];
 
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth >= 950) {
-              return Row(
-                children: cards
-                    .map(
-                      (c) => Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: c,
-                        ),
-                      ),
-                    )
-                    .toList(),
-              );
-            } else if (constraints.maxWidth >= 540) {
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: cards[0]),
-                      const SizedBox(width: 12),
-                      Expanded(child: cards[1]),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(child: cards[2]),
-                      const SizedBox(width: 12),
-                      Expanded(child: cards[3]),
-                    ],
-                  ),
-                ],
-              );
-            } else {
-              return Column(
-                children: cards
-                    .map(
-                      (c) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: c,
-                      ),
-                    )
-                    .toList(),
+        return Container(
+          width: double.infinity,
+          color: isDark ? AppTheme.fieldDark : AppTheme.primaryTeal,
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: isMobile ? 24 : 36),
+          child: LayoutBuilder(builder: (context, c) {
+            if (c.maxWidth >= 900) {
+              return IntrinsicHeight(
+                child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  for (var i = 0; i < cols.length; i++) ...[
+                    if (i > 0) VerticalDivider(color: rule, width: 48, thickness: 1),
+                    Expanded(child: cols[i]),
+                  ]
+                ]),
               );
             }
-          },
+            return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              for (var i = 0; i < cols.length; i++) ...[
+                if (i > 0) Padding(padding: const EdgeInsets.symmetric(vertical: 20), child: Divider(color: rule, height: 1)),
+                cols[i],
+              ]
+            ]);
+          }),
         );
       },
-    );
-  }
-
-  Widget _buildMetricCard({
-    required String title,
-    required String value,
-    required String subtext,
-    required String badge,
-    required bool badgePositive,
-    required IconData icon,
-    required Color accentColor,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isDark
-              ? AppTheme.borderSubtleDark
-              : AppTheme.borderSubtleLight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? AppTheme.textSecondaryDark
-                        : AppTheme.textSecondaryLight,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 16, color: accentColor),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              fontFeatures: const [FontFeature.tabularFigures()],
-              color: isDark
-                  ? AppTheme.textPrimaryDark
-                  : AppTheme.textPrimaryLight,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color:
-                      (badgePositive
-                              ? (isDark
-                                    ? const Color(0xFF064E3B)
-                                    : const Color(0xFFECFDF5))
-                              : (isDark
-                                    ? const Color(0xFF451A03)
-                                    : const Color(0xFFFFFBEB)))
-                          .withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Text(
-                  badge,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: badgePositive
-                        ? (isDark
-                              ? const Color(0xFF34D399)
-                              : const Color(0xFF059669))
-                        : (isDark
-                              ? const Color(0xFFFBBF24)
-                              : const Color(0xFFD97706)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  subtext,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    color: isDark
-                        ? AppTheme.textMutedDark
-                        : AppTheme.textSecondaryLight,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
@@ -650,7 +465,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
       padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderSubtleDark
@@ -674,10 +489,10 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Ablation Study Visualizer (Multi-Branch vs Standalone Baselines)',
+                      'Compared with the baselines',
                       style: TextStyle(
                         fontSize: isMobile ? 14.5 : 16,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: isDark
                             ? AppTheme.textPrimaryDark
                             : AppTheme.textPrimaryLight,
@@ -685,7 +500,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Direct architectural performance impact of Cross-Attention vs Concatenation vs Standalone ViT vs Standalone CNN',
+                      'The proposed model against plain concatenation, the ViT alone, and ResNet-50 alone.',
                       style: TextStyle(
                         fontSize: 11.5,
                         color: isDark
@@ -727,7 +542,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                     labelStyle: TextStyle(
                       fontSize: 12,
                       fontWeight: isSelected
-                          ? FontWeight.w700
+                          ? FontWeight.w500
                           : FontWeight.w500,
                       color: isSelected
                           ? (isDark
@@ -750,7 +565,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                                 : AppTheme.borderSubtleLight),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.zero,
                     ),
                   ),
                 );
@@ -819,11 +634,14 @@ class _BenchmarksViewState extends State<BenchmarksView>
         break;
     }
 
-    // Baseline Standalone CNN comparison delta
-    const cnnBaseValF1 = 77.29;
-    final deltaOverCnn = meanVal - cnnBaseValF1;
-    final progress = _countAnimation.value * metricAnim;
-    final animatedFraction = (meanVal / 100.0 * progress).clamp(0.0, 1.0);
+    // Points over the standalone CNN baseline, read from the same data.
+    final cnnRow = (_service.benchmarkData?.fiveFoldSummary ?? const [])
+        .cast<dynamic>()
+        .firstWhere((e) => e['model'].toString().contains('Standalone CNN'), orElse: () => null);
+    final cnnBaseValF1 = (cnnRow?['val_macro_f1_mean'] as num?)?.toDouble();
+    final deltaOverCnn = cnnBaseValF1 == null ? 0.0 : meanVal - cnnBaseValF1;
+    // Only the bar grows; the printed figure is always the recorded value.
+    final animatedFraction = (meanVal / 100.0 * metricAnim).clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -832,14 +650,14 @@ class _BenchmarksViewState extends State<BenchmarksView>
         color: isProposed
             ? (isDark
                   ? AppTheme.primaryTealDark.withValues(alpha: 0.25)
-                  : const Color(0xFFF0FDF4))
+                  : AppTheme.tealWash)
             : (isDark
                   ? AppTheme.surfaceElevatedDark.withValues(alpha: 0.5)
-                  : const Color(0xFFF8FAFC)),
-        borderRadius: BorderRadius.circular(12),
+                  : AppTheme.band),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isProposed
-              ? (isDark ? AppTheme.tealAccentDark : const Color(0xFF10B981))
+              ? (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
               : (isDark
                     ? AppTheme.borderSubtleDark
                     : AppTheme.borderSubtleLight),
@@ -864,7 +682,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       size: 16,
                       color: isDark
                           ? AppTheme.tealAccentDark
-                          : const Color(0xFF10B981),
+                          : AppTheme.primaryTeal,
                     ),
                     const SizedBox(width: 5),
                   ],
@@ -875,8 +693,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       style: TextStyle(
                         fontSize: isMobile ? 12.5 : 13.5,
                         fontWeight: isProposed
-                            ? FontWeight.w800
-                            : FontWeight.w600,
+                            ? FontWeight.w500
+                            : FontWeight.w400,
                         color: isProposed
                             ? (isDark
                                   ? AppTheme.tealAccentDark
@@ -895,10 +713,10 @@ class _BenchmarksViewState extends State<BenchmarksView>
                 spacing: 5,
                 children: [
                   Text(
-                    '${(meanVal * progress).toStringAsFixed(2)}% ± ${stdVal.toStringAsFixed(2)}%',
+                    '${meanVal.toStringAsFixed(2)}% ± ${stdVal.toStringAsFixed(2)}%',
                     style: TextStyle(
                       fontSize: isMobile ? 10.5 : 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       fontFeatures: const [FontFeature.tabularFigures()],
                       color: isProposed
                           ? (isDark
@@ -910,6 +728,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                     ),
                   ),
                   if (!modelName.contains('Standalone CNN') &&
+                      cnnBaseValF1 != null &&
                       _selectedAblationMetric == 'val_macro_f1') ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -919,22 +738,22 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       decoration: BoxDecoration(
                         color: deltaOverCnn >= 0
                             ? (isDark
-                                  ? const Color(0xFF064E3B)
-                                  : const Color(0xFFDCFCE7))
+                                  ? AppTheme.tealWashDark
+                                  : AppTheme.tealWash)
                             : (isDark
                                   ? const Color(0xFF450A0A)
                                   : const Color(0xFFFEE2E2)),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.zero,
                       ),
                       child: Text(
-                        '${deltaOverCnn >= 0 ? '+' : ''}${deltaOverCnn.toStringAsFixed(1)}%',
+                        '${deltaOverCnn >= 0 ? '+' : ''}${deltaOverCnn.toStringAsFixed(1)} pts',
                         style: TextStyle(
                           fontSize: 10,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: deltaOverCnn >= 0
                               ? (isDark
-                                    ? const Color(0xFF34D399)
-                                    : const Color(0xFF16A34A))
+                                    ? AppTheme.tealAccentDark
+                                    : AppTheme.primaryTeal)
                               : (isDark
                                     ? const Color(0xFFF87171)
                                     : const Color(0xFFDC2626)),
@@ -955,9 +774,9 @@ class _BenchmarksViewState extends State<BenchmarksView>
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF1E293B)
-                      : const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(4),
+                      ? AppTheme.surfaceElevatedDark
+                      : AppTheme.borderSubtleLight,
+                  borderRadius: BorderRadius.zero,
                 ),
               ),
               FractionallySizedBox(
@@ -974,19 +793,19 @@ class _BenchmarksViewState extends State<BenchmarksView>
                                   ]
                                 : [
                                     const Color(0xFF006A6B),
-                                    const Color(0xFF10B981),
+                                    AppTheme.primaryTeal,
                                   ])
                           : (isDark
                                 ? [
-                                    const Color(0xFF334155),
-                                    const Color(0xFF64748B),
+                                    AppTheme.inkSlate,
+                                    AppTheme.textMutedLight,
                                   ]
                                 : [
-                                    const Color(0xFF94A3B8),
-                                    const Color(0xFF64748B),
+                                    AppTheme.textMutedLight,
+                                    AppTheme.textMutedLight,
                                   ]),
                     ),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.zero,
                   ),
                 ),
               ),
@@ -1020,7 +839,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
       padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderSubtleDark
@@ -1043,7 +862,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   '5-Fold Cross-Validation Summary (Mean ± SD)',
                   style: TextStyle(
                     fontSize: isMobile ? 14.5 : 16,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: isDark
                         ? AppTheme.textPrimaryDark
                         : AppTheme.textPrimaryLight,
@@ -1080,7 +899,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Evaluated Model',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1091,7 +910,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Val Macro F1 (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1102,7 +921,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Test Acc (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1113,7 +932,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Test Precision (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1124,7 +943,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Test Recall (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1135,7 +954,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Test Macro F1 (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1152,7 +971,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       ? WidgetStateProperty.all(
                           isDark
                               ? AppTheme.primaryTealDark.withValues(alpha: 0.25)
-                              : const Color(0xFFF0FDF4),
+                              : AppTheme.tealWash,
                         )
                       : null,
                   cells: [
@@ -1166,7 +985,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                               size: 16,
                               color: isDark
                                   ? AppTheme.tealAccentDark
-                                  : const Color(0xFF10B981),
+                                  : AppTheme.primaryTeal,
                             ),
                             const SizedBox(width: 6),
                           ],
@@ -1174,8 +993,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
                             item['model'].toString(),
                             style: TextStyle(
                               fontWeight: isProposed
-                                  ? FontWeight.w800
-                                  : FontWeight.w600,
+                                  ? FontWeight.w500
+                                  : FontWeight.w400,
                               color: isProposed
                                   ? (isDark
                                         ? AppTheme.tealAccentDark
@@ -1193,7 +1012,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         '${item['val_macro_f1_mean']} ± ${item['val_macro_f1_std']}',
                         style: TextStyle(
                           fontWeight: isProposed
-                              ? FontWeight.w700
+                              ? FontWeight.w500
                               : FontWeight.w500,
                           color: isDark
                               ? AppTheme.textPrimaryDark
@@ -1206,7 +1025,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         '${item['test_acc_mean']} ± ${item['test_acc_std']}',
                         style: TextStyle(
                           fontWeight: isProposed
-                              ? FontWeight.w700
+                              ? FontWeight.w500
                               : FontWeight.w500,
                           color: isDark
                               ? AppTheme.textPrimaryDark
@@ -1238,7 +1057,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       Text(
                         '${item['test_f1_mean']} ± ${item['test_f1_std']}',
                         style: TextStyle(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: isProposed
                               ? (isDark
                                     ? AppTheme.tealAccentDark
@@ -1270,7 +1089,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderSubtleDark
@@ -1295,7 +1114,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   'Fold 1 Held-Out Test Classification Report',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: isDark
                         ? AppTheme.textPrimaryDark
                         : AppTheme.textPrimaryLight,
@@ -1346,7 +1165,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Class',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1357,7 +1176,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Precision',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1368,7 +1187,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Recall',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1379,7 +1198,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'F1-Score',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1390,7 +1209,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Support',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -1412,7 +1231,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       Text(
                         cls,
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: isDark
                               ? AppTheme.textPrimaryDark
                               : AppTheme.textPrimaryLight,
@@ -1443,7 +1262,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       Text(
                         '${(f1 * 100).toStringAsFixed(1)}%',
                         style: TextStyle(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: isDark
                               ? AppTheme.tealAccentDark
                               : AppTheme.primaryTeal,
@@ -1473,7 +1292,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderSubtleDark
@@ -1496,7 +1315,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   'Interactive Confusion Matrix (Proposed Fold 1)',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: isDark
                         ? AppTheme.textPrimaryDark
                         : AppTheme.textPrimaryLight,
@@ -1589,8 +1408,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: isHighlightedCol
-                              ? FontWeight.w800
-                              : FontWeight.w600,
+                              ? FontWeight.w500
+                              : FontWeight.w400,
                           color: isHighlightedCol
                               ? (isDark
                                     ? AppTheme.tealAccentDark
@@ -1632,8 +1451,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: isHighlightedRow
-                                ? FontWeight.w800
-                                : FontWeight.w600,
+                                ? FontWeight.w500
+                                : FontWeight.w400,
                             color: isHighlightedRow
                                 ? (isDark
                                       ? AppTheme.tealAccentDark
@@ -1660,8 +1479,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       if (isDiag) {
                         if (isDark) {
                           cellBg = Color.lerp(
-                            const Color(0xFF0F2E3A),
-                            const Color(0xFF0D9488),
+                            AppTheme.surfaceElevatedDark,
+                            AppTheme.primaryTeal,
                             intensity,
                           )!;
                           textCol = intensity > 0.4
@@ -1675,7 +1494,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                           )!;
                           textCol = intensity > 0.4
                               ? Colors.white
-                              : const Color(0xFF0F172A);
+                              : AppTheme.textPrimaryLight;
                         }
                       } else {
                         if (val > 0) {
@@ -1688,10 +1507,10 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         } else {
                           cellBg = isDark
                               ? AppTheme.surfaceElevatedDark
-                              : const Color(0xFFF8FAFC);
+                              : AppTheme.band;
                           textCol = isDark
                               ? AppTheme.textMutedDark
-                              : const Color(0xFF94A3B8);
+                              : AppTheme.textMutedLight;
                         }
                       }
 
@@ -1727,7 +1546,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               decoration: BoxDecoration(
                                 color: cellBg,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.zero,
                                 border: Border.all(
                                   color: isHovered
                                       ? (isDark
@@ -1742,21 +1561,9 @@ class _BenchmarksViewState extends State<BenchmarksView>
                                                     ).withValues(alpha: 0.3))
                                             : (isDark
                                                   ? AppTheme.borderFocusedDark
-                                                  : const Color(0xFFE2E8F0))),
+                                                  : AppTheme.borderSubtleLight)),
                                   width: isHovered ? 2.0 : 0.8,
                                 ),
-                                boxShadow: isHovered
-                                    ? [
-                                        BoxShadow(
-                                          color:
-                                              (isDark
-                                                      ? AppTheme.tealAccentDark
-                                                      : AppTheme.primaryTeal)
-                                                  .withValues(alpha: 0.3),
-                                          blurRadius: 6,
-                                        ),
-                                      ]
-                                    : null,
                               ),
                               alignment: Alignment.center,
                               child: Text(
@@ -1764,7 +1571,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                                 style: TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: isDiag || isHovered
-                                      ? FontWeight.w800
+                                      ? FontWeight.w500
                                       : FontWeight.w500,
                                   fontFeatures: const [
                                     FontFeature.tabularFigures(),
@@ -1811,8 +1618,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
         decoration: BoxDecoration(
           color: isDark
               ? AppTheme.surfaceElevatedDark
-              : const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(10),
+              : AppTheme.surfaceElevatedLight,
+          borderRadius: BorderRadius.zero,
           border: Border.all(
             color: isDark
                 ? AppTheme.borderFocusedDark
@@ -1851,7 +1658,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
               '$correctSamples/$totalSamples Correct ($overallAccuracy%)',
               style: TextStyle(
                 fontSize: 11.5,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
               ),
             ),
@@ -1878,14 +1685,14 @@ class _BenchmarksViewState extends State<BenchmarksView>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isCorrect
-            ? (isDark ? const Color(0xFF042F2E) : const Color(0xFFECFDF5))
+            ? (isDark ? const Color(0xFF042F2E) : AppTheme.tealWash)
             : (isDark
                   ? const Color(0xFF450A0A).withValues(alpha: 0.8)
                   : const Color(0xFFFEF2F2)),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isCorrect
-              ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF6EE7B7))
+              ? (isDark ? AppTheme.primaryTeal : const Color(0xFF6EE7B7))
               : (isDark ? const Color(0xFFDC2626) : const Color(0xFFFCA5A5)),
           width: 1.2,
         ),
@@ -1897,7 +1704,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
             isCorrect ? Icons.check_circle_rounded : Icons.info_outline_rounded,
             size: 20,
             color: isCorrect
-                ? (isDark ? const Color(0xFF2DD4BF) : const Color(0xFF059669))
+                ? (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
                 : (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626)),
           ),
           const SizedBox(width: 10),
@@ -1913,11 +1720,11 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       isCorrect ? 'True Positive' : 'Misclassification Pair',
                       style: TextStyle(
                         fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500,
                         color: isCorrect
                             ? (isDark
-                                  ? const Color(0xFF2DD4BF)
-                                  : const Color(0xFF059669))
+                                  ? AppTheme.tealAccentDark
+                                  : AppTheme.primaryTeal)
                             : (isDark
                                   ? const Color(0xFFF87171)
                                   : const Color(0xFFDC2626)),
@@ -1927,7 +1734,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       'Actual: $actual ➔ Predicted: $predicted',
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: isDark
                             ? AppTheme.textPrimaryDark
                             : AppTheme.textPrimaryLight,
@@ -1952,7 +1759,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
           ),
           IconButton(
             icon: const Icon(Icons.close_rounded, size: 16),
-            color: isDark ? AppTheme.textSecondaryDark : Colors.grey,
+            color: isDark ? AppTheme.textSecondaryDark : AppTheme.textMutedLight,
             tooltip: 'Clear inspection',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -1989,7 +1796,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
       padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderSubtleDark
@@ -2012,7 +1819,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   'Training Convergence & Two-Stage Progression',
                   style: TextStyle(
                     fontSize: isMobile ? 14.5 : 16,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: isDark
                         ? AppTheme.textPrimaryDark
                         : AppTheme.textPrimaryLight,
@@ -2084,7 +1891,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
             'Select Model Architecture to Inspect Fold Convergence:',
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               color: isDark
                   ? AppTheme.textSecondaryDark
                   : AppTheme.textSecondaryLight,
@@ -2133,7 +1940,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         labelStyle: TextStyle(
                           fontSize: 11.5,
                           fontWeight: isSelected
-                              ? FontWeight.w700
+                              ? FontWeight.w500
                               : FontWeight.w500,
                           color: isSelected
                               ? (isDark
@@ -2156,7 +1963,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                                     : AppTheme.borderSubtleLight),
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.zero,
                         ),
                       ),
                     );
@@ -2181,7 +1988,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Fold',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -2192,7 +1999,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Best Val Epoch',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -2203,7 +2010,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Val Macro F1 (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -2214,7 +2021,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Test Acc (%)',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -2225,7 +2032,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                   label: Text(
                     'Test Loss',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -2251,7 +2058,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       Text(
                         'Fold $foldNum',
                         style: TextStyle(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: isDark
                               ? AppTheme.tealAccentDark
                               : AppTheme.primaryTeal,
@@ -2273,7 +2080,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                           Text(
                             'Epoch $epoch',
                             style: TextStyle(
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                               color: isDark
                                   ? AppTheme.textPrimaryDark
                                   : AppTheme.textPrimaryLight,
@@ -2286,7 +2093,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       Text(
                         '${valF1.toStringAsFixed(2)}%',
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           fontFeatures: const [FontFeature.tabularFigures()],
                           color: isDark
                               ? AppTheme.textPrimaryDark
@@ -2298,7 +2105,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       Text(
                         '${testAcc.toStringAsFixed(2)}%',
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           fontFeatures: const [FontFeature.tabularFigures()],
                           color: isDark
                               ? AppTheme.textPrimaryDark
@@ -2337,8 +2144,8 @@ class _BenchmarksViewState extends State<BenchmarksView>
       constraints: BoxConstraints(maxWidth: isMobile ? 220 : 380),
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.surfaceElevatedDark : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(6),
+        color: isDark ? AppTheme.surfaceElevatedDark : AppTheme.surfaceElevatedLight,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderFocusedDark
@@ -2361,7 +2168,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 11,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 color: isDark
                     ? AppTheme.textSecondaryDark
                     : AppTheme.textSecondaryLight,
@@ -2381,14 +2188,14 @@ class _BenchmarksViewState extends State<BenchmarksView>
 
     return InkWell(
       onTap: () => _showImageLightbox(assetPath, title, subtitle),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.zero,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isDark
               ? AppTheme.surfaceElevatedDark.withValues(alpha: 0.5)
-              : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12),
+              : AppTheme.band,
+          borderRadius: BorderRadius.zero,
           border: Border.all(
             color: isDark
                 ? AppTheme.borderFocusedDark
@@ -2400,7 +2207,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.zero,
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
                       child: Image.asset(
@@ -2409,12 +2216,12 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: isDark
                               ? AppTheme.surfaceElevatedDark
-                              : Colors.grey.shade200,
+                              : AppTheme.textMutedLight,
                           child: Icon(
                             Icons.broken_image_rounded,
                             color: isDark
                                 ? AppTheme.textMutedDark
-                                : Colors.grey,
+                                : AppTheme.textMutedLight,
                           ),
                         ),
                       ),
@@ -2425,7 +2232,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                     title,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -2461,7 +2268,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                           'Tap to inspect plot in lightbox zoom',
                           style: TextStyle(
                             fontSize: 10.5,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                             color: isDark
                                 ? AppTheme.tealAccentDark
                                 : AppTheme.primaryTeal,
@@ -2476,7 +2283,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
             : Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.zero,
                     child: SizedBox(
                       width: 120,
                       height: 75,
@@ -2486,12 +2293,12 @@ class _BenchmarksViewState extends State<BenchmarksView>
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: isDark
                               ? AppTheme.surfaceElevatedDark
-                              : Colors.grey.shade200,
+                              : AppTheme.textMutedLight,
                           child: Icon(
                             Icons.broken_image_rounded,
                             color: isDark
                                 ? AppTheme.textMutedDark
-                                : Colors.grey,
+                                : AppTheme.textMutedLight,
                           ),
                         ),
                       ),
@@ -2506,7 +2313,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                           title,
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: isDark
                                 ? AppTheme.textPrimaryDark
                                 : AppTheme.textPrimaryLight,
@@ -2542,7 +2349,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                                 'Tap to inspect high-resolution plot in zoom lightbox',
                                 style: TextStyle(
                                   fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w400,
                                   color: isDark
                                       ? AppTheme.tealAccentDark
                                       : AppTheme.primaryTeal,
@@ -2578,7 +2385,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                 'Research Publication Visualizations',
                 style: TextStyle(
                   fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppTheme.textPrimaryDark
                       : AppTheme.textPrimaryLight,
@@ -2670,24 +2477,17 @@ class _BenchmarksViewState extends State<BenchmarksView>
   ) {
     return InkWell(
       onTap: () => _showImageLightbox(assetPath, title, subtitle),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.zero,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.zero,
           border: Border.all(
             color: isDark
                 ? AppTheme.borderSubtleDark
                 : AppTheme.borderSubtleLight,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2695,7 +2495,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.zero,
                   child: AspectRatio(
                     aspectRatio: 16 / 10,
                     child: Image.asset(
@@ -2704,10 +2504,10 @@ class _BenchmarksViewState extends State<BenchmarksView>
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: isDark
                             ? AppTheme.surfaceElevatedDark
-                            : Colors.grey.shade100,
+                            : AppTheme.textMutedLight,
                         child: Icon(
                           Icons.broken_image_rounded,
-                          color: isDark ? AppTheme.textMutedDark : Colors.grey,
+                          color: isDark ? AppTheme.textMutedDark : AppTheme.textMutedLight,
                         ),
                       ),
                     ),
@@ -2720,7 +2520,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.zero,
                     ),
                     child: const Icon(
                       Icons.fullscreen_rounded,
@@ -2736,7 +2536,7 @@ class _BenchmarksViewState extends State<BenchmarksView>
               title,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: isDark
                     ? AppTheme.textPrimaryDark
                     : AppTheme.textPrimaryLight,

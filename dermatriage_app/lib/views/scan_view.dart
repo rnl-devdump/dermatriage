@@ -4,11 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import '../services/inference_service.dart';
 import '../services/history_service.dart';
 import '../models/triage_result.dart';
-import '../widgets/urgency_badge_widget.dart';
 import '../widgets/probability_bar_widget.dart';
 import '../widgets/attention_heatmap_widget.dart';
 import '../widgets/sample_selector_dialog.dart';
 import '../theme/app_theme.dart';
+import '../widgets/poster.dart';
 
 class ScanView extends StatefulWidget {
   final String? preloadedAssetPath;
@@ -159,8 +159,8 @@ class _ScanViewState extends State<ScanView>
           : AppTheme.backgroundLight,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
-          horizontal: isMobilePadding ? 14 : 24,
-          vertical: isMobilePadding ? 14 : 20,
+          horizontal: isMobilePadding ? 20 : 40,
+          vertical: isMobilePadding ? 24 : 40,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,103 +173,79 @@ class _ScanViewState extends State<ScanView>
                 final titleColumn = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Local Clinical Lesion Triage & Scan',
-                      style: TextStyle(
-                        fontSize: isCompact ? 19 : 22,
-                        fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? AppTheme.textPrimaryDark
-                            : AppTheme.textPrimaryLight,
-                        letterSpacing: -0.4,
-                      ),
+                    Display(
+                      'Scan & Triage',
+                      size: isCompact ? 52 : 84,
+                      height: 0.86,
+                      color: isDark ? AppTheme.pale : AppTheme.ink,
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 12),
                     Text(
-                      'Evaluates skin lesions locally using Proposed Dual-Branch CNN-ViT Cross-Attention',
+                      'Upload a lesion photo or pick a verified test case. The dual-branch model classifies it and shows where it looked.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 16,
+                        height: 1.3,
+                        fontWeight: FontWeight.w300,
                         color: isDark
                             ? AppTheme.textSecondaryDark
-                            : const Color(0xFF64748B),
+                            : AppTheme.textSecondaryLight,
                       ),
                     ),
                   ],
                 );
 
-                final statusBadge = InkWell(
-                  onTap: () async {
-                    await _inference.checkHealth();
-                    setState(() {});
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isOnline
-                          ? (isDark
-                                ? const Color(0xFF064E3B)
-                                : const Color(0xFFECFDF5))
-                          : (isDark
-                                ? const Color(0xFF451A03)
-                                : const Color(0xFFFFFBEB)),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isOnline
-                            ? (isDark
-                                  ? const Color(0xFF059669)
-                                  : const Color(0xFF10B981))
-                            : (isDark
-                                  ? const Color(0xFFD97706)
-                                  : const Color(0xFFF59E0B)),
-                        width: 1.2,
+                final ink = isDark ? AppTheme.pale : AppTheme.ink;
+                final statusBadge = Semantics(
+                  button: true,
+                  label: isOnline ? 'PyTorch server connected. Check again.' : 'Offline Dart estimate in use. Check the server again.',
+                  child: InkWell(
+                    onTap: () async {
+                      await _inference.checkHealth();
+                      setState(() {});
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: isDark ? AppTheme.borderSubtleDark : AppTheme.borderSubtleLight),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isOnline
-                              ? Icons.check_circle_rounded
-                              : Icons.info_outline_rounded,
-                          size: 16,
-                          color: isOnline
-                              ? const Color(0xFF059669)
-                              : const Color(0xFFD97706),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isOnline
-                                  ? 'Local PyTorch Engine Connected'
-                                  : 'Standalone Dart Engine Active',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
-                                color: isOnline
-                                    ? const Color(0xFF059669)
-                                    : const Color(0xFFD97706),
-                              ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 9,
+                            height: 9,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isOnline ? (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal) : null,
+                              border: isOnline ? null : Border.all(color: ink, width: 1.2),
                             ),
-                            Text(
-                              isOnline
-                                  ? 'Proposed Fold-1 Best Checkpoint (127.0.0.1:8000)'
-                                  : 'Tap to refresh local server status',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: isDark
-                                    ? AppTheme.textMutedDark
-                                    : const Color(0xFF64748B),
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              PosterLabel(
+                                isOnline
+                                    ? 'PyTorch server'
+                                    : (_inference.isServerMissingWeights ? 'Server has no weights' : 'Offline estimate'),
+                                color: ink,
+                                size: 11.2,
+                                tracking: 0.5,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(height: 3),
+                              Text(
+                                isOnline
+                                    ? 'Tap to check again'
+                                    : (_inference.isServerMissingWeights
+                                        ? 'Trained weights not loaded. Using the offline estimate'
+                                        : 'Server unreachable. Tap to check again'),
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondaryLight),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -306,7 +282,7 @@ class _ScanViewState extends State<ScanView>
                   color: isDark
                       ? const Color(0xFF450A0A)
                       : const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.zero,
                   border: Border.all(
                     color: isDark
                         ? const Color(0xFF991B1B)
@@ -380,25 +356,22 @@ class _ScanViewState extends State<ScanView>
                               ? null
                               : _executeClassification,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isDark
-                                ? AppTheme.primaryTeal
-                                : AppTheme.primaryTeal,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           icon: _isScanning
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 )
                               : const Icon(Icons.refresh_rounded, size: 18),
                           label: Text(
                             _isScanning
-                                ? 'Extracting Attention Tokens...'
-                                : 'Re-Classify Lesion',
+                                ? 'Classifying…'
+                                : 'Classify again',
                           ),
                         ),
                       ),
@@ -458,21 +431,14 @@ class _ScanViewState extends State<ScanView>
       width: double.infinity,
       height: boxHeight,
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? AppTheme.cardDark : AppTheme.band,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: _selectedImageBytes != null
               ? (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
-              : (isDark ? AppTheme.borderFocusedDark : const Color(0xFFCBD5E1)),
+              : (isDark ? AppTheme.borderFocusedDark : AppTheme.borderSubtleLight),
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: _selectedImageBytes == null
@@ -481,28 +447,16 @@ class _ScanViewState extends State<ScanView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppTheme.primaryTeal.withValues(alpha: 0.2)
-                          : const Color(0xFFE6FFFA),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.add_a_photo_outlined,
-                      size: 38,
-                      color: isDark
-                          ? AppTheme.tealAccentDark
-                          : AppTheme.primaryTeal,
-                    ),
+                  ArchIcon(
+                    icon: Icons.add_a_photo_outlined,
+                    color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Select or Drop Skin Lesion Photo',
+                    'Drop a lesion photo here',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -513,13 +467,13 @@ class _ScanViewState extends State<ScanView>
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      'Supports JPEG, PNG, or select verified MSLD v2.0 clinical cases',
+                      'JPEG or PNG, or pick a verified MSLD v2.0 test case.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark
                             ? AppTheme.textSecondaryDark
-                            : const Color(0xFF64748B),
+                            : AppTheme.textMutedLight,
                       ),
                     ),
                   ),
@@ -527,7 +481,6 @@ class _ScanViewState extends State<ScanView>
                   ElevatedButton.icon(
                     onPressed: _showSamplePicker,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0284C7),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 10,
@@ -537,7 +490,7 @@ class _ScanViewState extends State<ScanView>
                       Icons.collections_bookmark_rounded,
                       size: 16,
                     ),
-                    label: const Text('Select Verified Test Case'),
+                    label: const Text('Pick a test case'),
                   ),
                 ],
               ),
@@ -573,13 +526,6 @@ class _ScanViewState extends State<ScanView>
                                     ).withValues(alpha: 0.1),
                                   ],
                                 ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0xFF2DD4BF),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
                               ),
                             ),
                           ],
@@ -598,14 +544,14 @@ class _ScanViewState extends State<ScanView>
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.75),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.zero,
                     ),
                     child: Text(
                       _selectedFileName ?? 'Loaded Image',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),
@@ -621,14 +567,14 @@ class _ScanViewState extends State<ScanView>
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF006A6B).withValues(alpha: 0.92),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.zero,
                       ),
                       child: Text(
                         'Actual: $_knownGroundTruth',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -644,10 +590,10 @@ class _ScanViewState extends State<ScanView>
       height: 480,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? AppTheme.cardDark : AppTheme.band,
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isDark ? AppTheme.borderFocusedDark : const Color(0xFFE2E8F0),
+          color: isDark ? AppTheme.borderFocusedDark : AppTheme.borderSubtleLight,
         ),
       ),
       child: Center(
@@ -657,28 +603,28 @@ class _ScanViewState extends State<ScanView>
             Icon(
               Icons.biotech_rounded,
               size: 52,
-              color: isDark ? AppTheme.textMutedDark : Colors.grey.shade400,
+              color: isDark ? AppTheme.textMutedDark : AppTheme.textMutedLight,
             ),
             const SizedBox(height: 16),
             Text(
-              'Awaiting Skin Lesion Image',
+              'No image yet',
               style: TextStyle(
                 fontSize: 17,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: isDark
                     ? AppTheme.textPrimaryDark
-                    : const Color(0xFF334155),
+                    : AppTheme.inkSlate,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'Upload a clinical photo or choose a verified MSLD v2.0 test case on the left to generate local neural classification, cross-attention patch maps, and triage protocols.',
+              'Add a photo or pick a test case. The result, the attention map, and the triage protocol appear here.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
                 color: isDark
                     ? AppTheme.textSecondaryDark
-                    : const Color(0xFF64748B),
+                    : AppTheme.textMutedLight,
                 height: 1.45,
               ),
             ),
@@ -691,128 +637,68 @@ class _ScanViewState extends State<ScanView>
   Widget _buildTriageResultCard(TriageResult res, bool isDark) {
     return Container(
       key: ValueKey('scan_result_${res.condition}_${res.timestamp}'),
-      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isDark ? AppTheme.borderFocusedDark : const Color(0xFFE2E8F0),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: isDark ? AppTheme.cardDark : AppTheme.band,
+        border: Border.all(color: isDark ? AppTheme.borderSubtleDark : AppTheme.borderSubtleLight),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Diagnosis Title Row: Adaptive layout
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isCompact = constraints.maxWidth < 460;
-
-              final titleInfo = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    runSpacing: 6,
+          // The urgency is the field the class name stands on.
+          LayoutBuilder(builder: (context, constraints) {
+            final isCompact = constraints.maxWidth < 460;
+            const onField = Colors.white;
+            final soft = Colors.white.withValues(alpha: 0.86);
+            return Container(
+              color: urgencyFieldColor(res.urgency),
+              padding: EdgeInsets.fromLTRB(24, isCompact ? 20 : 26, 24, isCompact ? 22 : 28),
+              child: Semantics(
+                label: '${res.condition}, ${res.confidencePercent} confidence, ${res.urgency}',
+                child: ExcludeSemantics(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        res.condition,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? AppTheme.textPrimaryDark
-                              : const Color(0xFF0F172A),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              (isDark
-                                      ? AppTheme.tealAccentDark
-                                      : const Color(0xFF006A6B))
-                                  .withValues(alpha: isDark ? 0.2 : 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          res.confidencePercent,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w800,
-                            color: isDark
-                                ? AppTheme.tealAccentDark
-                                : const Color(0xFF006A6B),
-                          ),
-                        ),
+                      PosterLabel(res.urgency, color: onField, size: 12.8, tracking: 0.6),
+                      const SizedBox(height: 14),
+                      Display(res.condition, size: isCompact ? 56 : 84, height: 0.86, color: onField),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(res.confidencePercent, style: AppTheme.monoStyle(22, onField)),
+                          const SizedBox(width: 10),
+                          PosterLabel('confidence', color: soft, size: 11.2),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Classified via ${res.isLocalPyTorchEngine ? "PyTorch Dual-Branch Cross-Attn" : "Standalone Local Dart Engine"}',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      color: isDark
-                          ? AppTheme.textMutedDark
-                          : Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              );
-
-              final urgencyBadge = UrgencyBadgeWidget(
-                urgency: res.urgency,
-                isLarge: !isCompact,
-              );
-
-              if (isCompact) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    titleInfo,
-                    const SizedBox(height: 10),
-                    urgencyBadge,
-                  ],
-                );
-              } else {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: titleInfo),
-                    const SizedBox(width: 10),
-                    urgencyBadge,
-                  ],
-                );
-              }
-            },
+                ),
+              ),
+            );
+          }),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+          Text(
+            res.isLocalPyTorchEngine
+                ? 'Classified by the PyTorch dual-branch model.'
+                : 'Offline estimate from the Dart engine, not the trained model.',
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w300,
+              color: isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondaryLight,
+            ),
           ),
-
-          Divider(
-            height: 24,
-            color: isDark
-                ? AppTheme.borderFocusedDark
-                : AppTheme.borderSubtleLight,
-          ),
-
+          const SizedBox(height: 18),
           // Required Action & Isolation Alert Box
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppTheme.getUrgencyBg(res.urgency, isDark),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.zero,
               border: Border.all(
                 color: AppTheme.getUrgencyBorder(res.urgency, isDark),
               ),
@@ -825,7 +711,7 @@ class _ScanViewState extends State<ScanView>
                     Icon(
                       Icons.security_rounded,
                       size: 16,
-                      color: AppTheme.getUrgencyColor(res.urgency),
+                      color: urgencyTextColor(res.urgency, isDark),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -833,10 +719,9 @@ class _ScanViewState extends State<ScanView>
                         'Triage Protocol: ${res.isolationProtocol}',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.getUrgencyColor(res.urgency),
+                          fontWeight: FontWeight.w500,
+                          color: urgencyTextColor(res.urgency, isDark),
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -847,8 +732,8 @@ class _ScanViewState extends State<ScanView>
                   style: TextStyle(
                     fontSize: 12.5,
                     color: isDark
-                        ? const Color(0xFFF1F5F9)
-                        : const Color(0xFF1E3A8B),
+                        ? AppTheme.textPrimaryDark
+                        : AppTheme.textPrimaryLight,
                     height: 1.4,
                   ),
                 ),
@@ -863,10 +748,10 @@ class _ScanViewState extends State<ScanView>
             'Multi-Class Probability Distribution',
             style: TextStyle(
               fontSize: 14.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: isDark
                   ? AppTheme.textPrimaryDark
-                  : const Color(0xFF0F172A),
+                  : AppTheme.textPrimaryLight,
               letterSpacing: -0.2,
             ),
           ),
@@ -920,6 +805,9 @@ class _ScanViewState extends State<ScanView>
                 label: const Text('Copy Clinical Report'),
               ),
             ],
+          ),
+              ],
+            ),
           ),
         ],
       ),

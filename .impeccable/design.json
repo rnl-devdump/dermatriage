@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T00:00:00Z",
+  "title": "Design System: Dermatriage",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Paper", "tonalRamp": ["#0B2724", "#134E4A", "#2E6B66", "#4E8C86", "#7FB3AD", "#B5D9D3", "#D7F0EB", "#EEF8F6"] },
+      "ink": { "role": "primary", "displayName": "Ink", "tonalRamp": ["#00201B", "#003A31", "#004D40", "#1F6A5E", "#4A8A7F", "#7FB0A7", "#B6D6D0", "#E3F2EF"] },
+      "primary": { "role": "primary", "displayName": "Primary Teal", "tonalRamp": ["#002526", "#00494A", "#006A6B", "#26898A", "#55A7A7", "#8AC6C5", "#C0E3E2", "#E8F5F5"] },
+      "cyan-band": { "role": "secondary", "displayName": "Cyan Band", "tonalRamp": ["#082F49", "#075985", "#0369A1", "#0284C7", "#0EA5E9", "#7DD3FC", "#BAE6FD", "#E0F2FE"] },
+      "urgency-level-1": { "role": "semantic", "displayName": "Level 1 High Priority" },
+      "urgency-level-2": { "role": "semantic", "displayName": "Level 2 Urgent" },
+      "urgency-level-3": { "role": "semantic", "displayName": "Level 3 Standard" },
+      "urgency-level-4": { "role": "semantic", "displayName": "Level 4 Routine" }
+    },
+    "typographyMeta": {
+      "display-poster": { "displayName": "Poster", "purpose": "DERMA / TRIAGE on the home hero only." },
+      "display-title": { "displayName": "Title", "purpose": "One per workspace screen." },
+      "body": { "displayName": "Body", "purpose": "All running text, Light 300." },
+      "label": { "displayName": "Label", "purpose": "Uppercase eyebrows, captions and status." },
+      "figure": { "displayName": "Figure", "purpose": "Every number the model or benchmarks produce." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "fast", "value": "150ms", "purpose": "Hover and press feedback." },
+      { "name": "medium", "value": "250ms", "purpose": "Metric switch and bar growth." },
+      { "name": "entrance", "value": "500ms", "purpose": "Screen entrance fade and count-up." },
+      { "name": "ease-out-cubic", "value": "cubic-bezier(0.33, 1, 0.68, 1)", "purpose": "Default easing." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "700px" },
+      { "name": "shell", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on a screen: Upload Photo, Classify again.",
+      "html": "<button class=\"ds-btn-primary\">Classify again</button>",
+      "css": ".ds-btn-primary { background: #006A6B; color: #fff; border: none; border-radius: 0; padding: 16px 22px; font: 500 15px 'DM Sans', sans-serif; cursor: pointer; transition: background 150ms; } .ds-btn-primary:hover { background: #004D40; } .ds-btn-primary:focus-visible { outline: 2px solid #004D40; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action beside a primary one.",
+      "html": "<button class=\"ds-btn-outline\">Test Samples</button>",
+      "css": ".ds-btn-outline { background: transparent; color: #004D40; border: 1px solid #004D40; border-radius: 0; padding: 16px 22px; font: 500 15px 'DM Sans', sans-serif; cursor: pointer; transition: background 150ms; } .ds-btn-outline:hover { background: #D7F0EB; } .ds-btn-outline:focus-visible { outline: 2px solid #004D40; outline-offset: 2px; }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "description": "Uppercase links with an underline on the active screen.",
+      "html": "<nav class=\"ds-nav\"><a>Overview</a><a class=\"on\">Scan &amp; Triage</a><a>Exanthems</a><a>Benchmarks</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 28px; font: 300 13px 'DM Sans', sans-serif; letter-spacing: 0.5px; text-transform: uppercase; } .ds-nav a { color: #34524E; padding-bottom: 6px; border-bottom: 1px solid transparent; cursor: pointer; } .ds-nav a:hover { color: #004D40; } .ds-nav a.on { color: #004D40; border-bottom-color: #004D40; }"
+    },
+    {
+      "name": "Metric Chip",
+      "kind": "chip",
+      "description": "Square selector for the benchmark comparison metric.",
+      "html": "<span class=\"ds-chip on\">Val Macro F1</span><span class=\"ds-chip\">Test Accuracy</span>",
+      "css": ".ds-chip { display: inline-block; margin-right: 8px; padding: 8px 14px; border: 1px solid #C2D9D5; font: 300 12.8px 'DM Sans', sans-serif; color: #0B3B36; background: #F8FAFC; } .ds-chip.on { border-color: #006A6B; background: #D7F0EB; color: #006A6B; }"
+    },
+    {
+      "name": "Urgency Result Field",
+      "kind": "custom",
+      "refersTo": "urgency-field",
+      "description": "Opens every scan result in the urgency colour.",
+      "html": "<div class=\"ds-urgency\"><div class=\"lbl\">High priority (Level 1)</div><div class=\"cls\">Mpox</div><div class=\"conf\">81.4% <span>Confidence</span></div></div>",
+      "css": ".ds-urgency { background: #DC2626; color: #fff; padding: 28px 24px; } .ds-urgency .lbl { font: 300 12.8px 'DM Sans', sans-serif; letter-spacing: 0.48px; text-transform: uppercase; } .ds-urgency .cls { font: 400 56px/0.9 'Italiana', serif; margin: 14px 0 10px; } .ds-urgency .conf { font: 400 22px 'DM Mono', monospace; } .ds-urgency .conf span { font: 300 12.8px 'DM Sans', sans-serif; text-transform: uppercase; margin-left: 8px; }"
+    },
+    {
+      "name": "Stat Band",
+      "kind": "card",
+      "refersTo": "stat-band",
+      "description": "Benchmark figures in ruled columns on one teal band.",
+      "html": "<div class=\"ds-stats\"><div><span>Validation macro F1</span><b>86.81%</b></div><div><span>Held-out accuracy</span><b>82.24%</b></div></div>",
+      "css": ".ds-stats { display: flex; background: #006A6B; color: #CCFBF1; padding: 32px; } .ds-stats div { flex: 1; padding: 0 24px; border-left: 1px solid rgba(204,251,241,0.35); } .ds-stats div:first-child { border-left: none; padding-left: 0; } .ds-stats span { display: block; font: 300 12px 'DM Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.48px; } .ds-stats b { display: block; font: 400 40px 'DM Mono', monospace; margin-top: 14px; }"
+    },
+    {
+      "name": "Arch Photo",
+      "kind": "custom",
+      "description": "Lesion photograph cut into an arch window.",
+      "html": "<div class=\"ds-arch\"></div>",
+      "css": ".ds-arch { width: 160px; height: 220px; background: linear-gradient(160deg, #e9c9bd, #c99b8c); border-radius: 80px 80px 0 0; outline: 1px solid #004D40; outline-offset: -1px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Clinic Poster",
+    "overview": "Dermatriage reads like a printed public-health poster in teal: towering hairline capitals, flat full-bleed colour fields as section breaks, and lesion photographs cut into arch windows instead of rounded cards. The structure follows the \"Toys for Joy\" style reference the owner supplied, with every lavender and plum role replaced by Dermatriage's own teal family. The four clinical urgency colours are product semantics and are kept exactly.\n\nThe home screen is the poster. Scan, the exanthem library, benchmarks and records are working screens in the same world: a display title over a hairline, Light body copy, square controls, and figures set in a monospace so columns of numbers line up.",
+    "keyCharacteristics": [
+      "Italiana display at weight 400 only, line-height 0.8 to 1.0, never bold.",
+      "DM Sans Light 300 for body and uppercase labels; 400 only for nav and button text.",
+      "Zero radius everywhere except the 7px footer card.",
+      "No shadows. Depth comes from stacked colour fields, arch masks and the inset footer card.",
+      "Urgency is a full-width colour field with white text, not a tinted badge."
+    ],
+    "rules": [
+      { "name": "The Urgency Rule", "body": "Red, amber, blue and green appear only for triage urgency: L1 #DC2626, L2 #B45309, L3 #2563EB, L4 #047857, each carrying white text. No other surface may use them.", "section": "colors" },
+      { "name": "The One Cool Field Rule", "body": "Sky wash and cyan are the only cool colours, used once each on the home poster.", "section": "colors" },
+      { "name": "The Light Body Rule", "body": "Body copy never goes heavier than 300; weight is not how this world shows emphasis. Size and the display face are.", "section": "typography" },
+      { "name": "The Flat Field Rule", "body": "If a surface needs to stand out, give it a different field colour or a 1px hairline, never a shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set headlines only in Italiana at 400 and body in DM Sans Light 300.",
+      "Do use full-bleed colour fields as section breaks.",
+      "Do cut photographs into arch windows.",
+      "Do set every model output and metric in DM Mono, read from the data, never typed in.",
+      "Do say which engine produced a result: the trained PyTorch model or the offline Dart estimate."
+    ],
+    "donts": [
+      "Don't use bold display type or display line-height of 1.2 or more.",
+      "Don't add drop shadows anywhere.",
+      "Don't round photographs or cards (the 7px footer card is the only exception).",
+      "Don't use the urgency reds, ambers, blues or greens for decoration.",
+      "Don't centre every line of the word wall.",
+      "Don't present the offline estimate as the trained model's output."
+    ]
+  }
+}

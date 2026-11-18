@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/exanthem_info.dart';
 import '../theme/app_theme.dart';
+import 'poster.dart';
 
 class SampleSelectorDialog extends StatelessWidget {
   final Function(String assetPath, String className) onSelectSample;
@@ -14,9 +15,9 @@ class SampleSelectorDialog extends StatelessWidget {
     final isCompact = screenWidth < 500;
 
     return Dialog(
-      backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+      backgroundColor: isDark ? AppTheme.cardDark : AppTheme.band,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         side: BorderSide(
           color: isDark
               ? AppTheme.borderFocusedDark
@@ -45,7 +46,7 @@ class SampleSelectorDialog extends StatelessWidget {
                         'Verified MSLD v2.0 Test Cases',
                         style: TextStyle(
                           fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: isDark
                               ? AppTheme.textPrimaryDark
                               : AppTheme.textPrimaryLight,
@@ -70,7 +71,7 @@ class SampleSelectorDialog extends StatelessWidget {
                     Icons.close_rounded,
                     color: isDark
                         ? AppTheme.textSecondaryDark
-                        : const Color(0xFF64748B),
+                        : AppTheme.textMutedLight,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -95,13 +96,13 @@ class SampleSelectorDialog extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? const Color(0xFF1E293B)
-                            : const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12),
+                            ? AppTheme.surfaceElevatedDark
+                            : AppTheme.band,
+                        borderRadius: BorderRadius.zero,
                         border: Border.all(
                           color: isDark
-                              ? const Color(0xFF334155)
-                              : const Color(0xFFE2E8F0),
+                              ? AppTheme.inkSlate
+                              : AppTheme.borderSubtleLight,
                         ),
                       ),
                       child: Column(
@@ -117,14 +118,13 @@ class SampleSelectorDialog extends StatelessWidget {
                                     height: 8,
                                     decoration: BoxDecoration(
                                       color: urgencyColor,
-                                      shape: BoxShape.circle,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     ex.name,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w500,
                                       fontSize: 14,
                                       color: isDark
                                           ? AppTheme.tealAccentDark
@@ -140,7 +140,7 @@ class SampleSelectorDialog extends StatelessWidget {
                                   fontSize: 11,
                                   color: isDark
                                       ? AppTheme.textMutedDark
-                                      : const Color(0xFF64748B),
+                                      : AppTheme.textMutedLight,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -159,7 +159,7 @@ class SampleSelectorDialog extends StatelessWidget {
                                     Navigator.pop(context);
                                     onSelectSample(path, ex.name);
                                   },
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.zero,
                                   child: Container(
                                     margin: EdgeInsets.symmetric(
                                       horizontal: isNarrow ? 0 : 4,
@@ -169,24 +169,22 @@ class SampleSelectorDialog extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: isDark
                                           ? AppTheme.cardDark
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
+                                          : AppTheme.band,
+                                      borderRadius: BorderRadius.zero,
                                       border: Border.all(
                                         color: isDark
-                                            ? const Color(0xFF334155)
-                                            : const Color(0xFFCBD5E1),
+                                            ? AppTheme.inkSlate
+                                            : AppTheme.borderSubtleLight,
                                       ),
                                     ),
                                     child: Row(
                                       children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                          child: Image.asset(
+                                        ClipPath(
+                  clipper: const ArchClipper(),
+                  child: Image.asset(
                                             path,
                                             width: 44,
-                                            height: 44,
+                                            height: 58,
                                             fit: BoxFit.cover,
                                             errorBuilder:
                                                 (
@@ -198,7 +196,7 @@ class SampleSelectorDialog extends StatelessWidget {
                                                   height: 44,
                                                   color: isDark
                                                       ? Colors.white10
-                                                      : Colors.grey.shade200,
+                                                      : AppTheme.textMutedLight,
                                                   child: const Icon(
                                                     Icons.image,
                                                     size: 22,
@@ -217,7 +215,7 @@ class SampleSelectorDialog extends StatelessWidget {
                                                 sampleNum,
                                                 style: TextStyle(
                                                   fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
+                                                  fontWeight: FontWeight.w400,
                                                   color: isDark
                                                       ? AppTheme.textPrimaryDark
                                                       : AppTheme
@@ -242,7 +240,7 @@ class SampleSelectorDialog extends StatelessWidget {
                                           size: 11,
                                           color: isDark
                                               ? AppTheme.textMutedDark
-                                              : Colors.grey.shade400,
+                                              : AppTheme.textMutedLight,
                                         ),
                                         const SizedBox(width: 4),
                                       ],

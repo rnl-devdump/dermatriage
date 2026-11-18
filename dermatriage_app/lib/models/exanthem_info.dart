@@ -56,7 +56,7 @@ class ExanthemInfo {
       morphologySummary:
           'Firm, deep-seated, well-circumscribed papulovesicular lesions advancing to tense pustules with pronounced central umbilication, eventual thick dark crusting and scarring.',
       lesionEvolution:
-          'Synchronous progression in any anatomical zone: Macules (1-2d) -> Papules (1-2d) -> Vesicles (1-2d) -> Pustules (5-7d) -> Desiccation/Crusting (7-14d).',
+          'Synchronous progression in any anatomical zone: Macules (1-2d) → Papules (1-2d) → Vesicles (1-2d) → Pustules (5-7d) → Desiccation/Crusting (7-14d).',
       anatomicalDistribution:
           'Centrifugal predilection: initial lesions frequently appear on face, oral mucosa, palms and soles, and perianal/genital mucosal boundaries.',
       lymphadenopathyProfile:
@@ -151,7 +151,7 @@ class ExanthemInfo {
       lesionEvolution:
           'Non-vesicular cephalocaudal wave: originates behind ears and along hairline, descends over face and neck, then sweeps over trunk and extremities within 3 days.',
       anatomicalDistribution:
-          'Cephalocaudal pattern (Head -> Neck -> Torso -> Arms/Legs). Palmar and plantar involvement is uncommon.',
+          'Cephalocaudal pattern (Head → Neck → Torso → Arms/Legs). Palmar and plantar involvement is uncommon.',
       lymphadenopathyProfile:
           'Mild generalized lymphadenopathy, prominent post-auricular and occipital nodes.',
       clinicalFeatures: [
@@ -195,7 +195,7 @@ class ExanthemInfo {
       morphologySummary:
           'Solitary or paucifocal (1 to 3) lesions starting as an inflamed macule, transforming into a hard indurated papule, hemorrhagic vesicle, and ultimately a large deeply excavated black necrotic eschar.',
       lesionEvolution:
-          'Slow localized progression over 3 to 6 weeks: Papule -> Hemorrhagic Bulla -> Central Necrosis -> Thick Black Eschar (Anthrax-like) -> Scarring.',
+          'Slow localized progression over 3 to 6 weeks: Papule → Hemorrhagic Bulla → Central Necrosis → Thick Black Eschar (Anthrax-like) → Scarring.',
       anatomicalDistribution:
           'Focal and asymmetrical: almost exclusively on inoculation sites such as fingers, hands, forearms, or face.',
       lymphadenopathyProfile:

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 import '../models/triage_result.dart';
@@ -11,8 +12,19 @@ class InferenceService {
   InferenceService._internal();
 
   static const String localServerBaseUrl = 'http://127.0.0.1:8000';
-  static const String modalServerBaseUrl =
-      'https://ocamporavenneil--dermatriage-service-dermatriageservice-web-app.us-east.modal.run';
+
+  /// The model API the front-end talks to. Override at build time with
+  /// `--dart-define=DERMATRIAGE_API_URL=https://...`; defaults to the cloud
+  /// deployment of modal_dermatriage_service.py.
+  static const String modalServerBaseUrl = String.fromEnvironment(
+    'DERMATRIAGE_API_URL',
+    defaultValue:
+        'https://ocamporavenneil--dermatriage-service-dermatriageservice-web-app.us-east.modal.run',
+  );
+
+  /// A published web build never falls back to a server on the visitor's own
+  /// machine: the browser blocks http://127.0.0.1 from an https page anyway.
+  static bool get _allowLocalFallback => !(kIsWeb && kReleaseMode);
 
   static String _activeServerUrl = modalServerBaseUrl;
 
@@ -25,11 +37,19 @@ class InferenceService {
   String _serverDevice = 'Unknown';
   String _serverModelName = 'Proposed Dual-Branch CNN-ViT Cross-Attention';
   bool _isUsingModalCloud = false;
+  bool _serverHasTrainedWeights = true;
 
   bool get isPyTorchServerOnline => _isPyTorchServerOnline;
   String get serverDevice => _serverDevice;
   String get serverModelName => _serverModelName;
   bool get isUsingModalCloud => _isUsingModalCloud;
+  /// False when the server answers but runs without its fine-tuned checkpoint;
+  /// its predictions would be meaningless, so the app does not use them.
+  bool get serverHasTrainedWeights => _serverHasTrainedWeights;
+
+  /// The server answered but has no fine-tuned checkpoint loaded.
+  bool _serverMissingWeights = false;
+  bool get isServerMissingWeights => _serverMissingWeights;
 
   void switchToModalCloud() {
     _activeServerUrl = modalServerBaseUrl;
@@ -41,6 +61,7 @@ class InferenceService {
 
   /// Check connectivity to PyTorch inference server (checks active server, with fallback)
   Future<bool> checkHealth() async {
+    _serverMissingWeights = false;
     // 1. Try active server URL (Modal cloud or local server)
     if (await _pingServer(_activeServerUrl)) {
       _isUsingModalCloud = _activeServerUrl.contains('modal.run');
@@ -52,7 +73,8 @@ class InferenceService {
         ? localServerBaseUrl
         : modalServerBaseUrl;
 
-    if (await _pingServer(alternateUrl)) {
+    if ((alternateUrl != localServerBaseUrl || _allowLocalFallback) &&
+        await _pingServer(alternateUrl)) {
       _activeServerUrl = alternateUrl;
       _isUsingModalCloud = alternateUrl.contains('modal.run');
       return true;
@@ -73,7 +95,13 @@ class InferenceService {
           .timeout(Duration(milliseconds: isCloud ? 15000 : 2000));
       if (res.statusCode == 200) {
         final data = json.decode(res.body) as Map<String, dynamic>;
-        _isPyTorchServerOnline = (data['status'] == 'online');
+        // Older local servers omit the flag; treat a missing flag as loaded.
+        _serverHasTrainedWeights = data['checkpoint_loaded'] != false;
+        if (data['status'] == 'online' && !_serverHasTrainedWeights) {
+          _serverMissingWeights = true;
+        }
+        _isPyTorchServerOnline =
+            data['status'] == 'online' && _serverHasTrainedWeights;
         _serverDevice = data['device']?.toString() ?? 'GPU';
         _serverModelName =
             data['model']?.toString() ??

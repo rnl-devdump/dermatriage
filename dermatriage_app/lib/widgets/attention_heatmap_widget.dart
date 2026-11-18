@@ -88,7 +88,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                     'Vision Transformer Cross-Attention Map (14×14 Patches)',
                     style: TextStyle(
                       fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
@@ -130,7 +130,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                 size: 19,
                 color: isDark
                     ? AppTheme.textSecondaryDark
-                    : const Color(0xFF64748B),
+                    : AppTheme.textMutedLight,
               ),
               onPressed: () {
                 setState(() => _showGridLines = !_showGridLines);
@@ -157,7 +157,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                             'Lesion Source',
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                               color: isDark
                                   ? AppTheme.textSecondaryDark
                                   : AppTheme.textSecondaryLight,
@@ -168,7 +168,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                             width: 130,
                             height: 130,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.zero,
                               border: Border.all(
                                 color: isDark
                                     ? AppTheme.borderFocusedDark
@@ -189,7 +189,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                             'ViT Attention Grid',
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                               color: isDark
                                   ? AppTheme.textSecondaryDark
                                   : AppTheme.textSecondaryLight,
@@ -216,14 +216,14 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(8),
+            color: isDark ? AppTheme.surfaceElevatedDark : AppTheme.surfaceElevatedLight,
+            borderRadius: BorderRadius.zero,
             border: Border.all(
               color: _hoveredIndex != null
                   ? (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
                   : (isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFE2E8F0)),
+                        ? AppTheme.inkSlate
+                        : AppTheme.borderSubtleLight),
               width: _hoveredIndex != null ? 1.2 : 0.8,
             ),
           ),
@@ -249,7 +249,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: _hoveredIndex != null
-                          ? FontWeight.w700
+                          ? FontWeight.w500
                           : FontWeight.w500,
                       color: isDark
                           ? AppTheme.textPrimaryDark
@@ -268,7 +268,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                     color: _getHeatmapColor(
                       tokens[_hoveredIndex!],
                     ).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.zero,
                     border: Border.all(
                       color: _getHeatmapColor(tokens[_hoveredIndex!]),
                       width: 1,
@@ -278,7 +278,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                     '${(tokens[_hoveredIndex!] * 100).toStringAsFixed(1)}% Attn',
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w500,
                       color: _getHeatmapColor(tokens[_hoveredIndex!]),
                     ),
                   ),
@@ -327,7 +327,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
               '${(_overlayOpacity * 100).round()}%',
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: isDark
                     ? AppTheme.textPrimaryDark
                     : AppTheme.textPrimaryLight,
@@ -347,7 +347,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                 fontSize: 10.5,
                 color: isDark
                     ? AppTheme.textMutedDark
-                    : const Color(0xFF64748B),
+                    : AppTheme.textMutedLight,
               ),
             ),
             const SizedBox(width: 8),
@@ -355,7 +355,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
               width: 150,
               height: 8,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.zero,
                 gradient: const LinearGradient(
                   colors: [
                     Color(0xFF1E3A8A),
@@ -374,7 +374,7 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
                 fontSize: 10.5,
                 color: isDark
                     ? AppTheme.textMutedDark
-                    : const Color(0xFF64748B),
+                    : AppTheme.textMutedLight,
               ),
             ),
           ],
@@ -393,18 +393,11 @@ class _AttentionHeatmapWidgetState extends State<AttentionHeatmapWidget> {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isDark ? AppTheme.borderFocusedDark : const Color(0xFFCBD5E1),
+          color: isDark ? AppTheme.borderFocusedDark : AppTheme.borderSubtleLight,
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(

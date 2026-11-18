@@ -67,8 +67,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Level 1: High Priority'), findsOneWidget);
-      expect(find.byIcon(Icons.warning_rounded), findsOneWidget);
+      expect(find.text('LEVEL 1: HIGH PRIORITY'), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
     });
 
     testWidgets('ProbabilityBarWidget renders label and percentage', (

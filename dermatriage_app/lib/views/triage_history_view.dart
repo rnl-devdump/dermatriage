@@ -5,6 +5,7 @@ import '../models/triage_result.dart';
 import '../services/history_service.dart';
 import '../widgets/urgency_badge_widget.dart';
 import '../theme/app_theme.dart';
+import '../widgets/poster.dart';
 
 class TriageHistoryView extends StatefulWidget {
   final VoidCallback? onNavigateToScan;
@@ -108,7 +109,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+        backgroundColor: isDark ? AppTheme.cardDark : AppTheme.band,
         content: Row(
           children: [
             Icon(
@@ -125,7 +126,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                       ? AppTheme.textPrimaryDark
                       : AppTheme.textPrimaryLight,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -133,7 +134,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
         ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.zero,
           side: BorderSide(
             color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
             width: 1.2,
@@ -151,10 +152,10 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+        backgroundColor: isDark ? AppTheme.cardDark : AppTheme.band,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.zero,
           side: BorderSide(
             color: isDark
                 ? AppTheme.borderFocusedDark
@@ -169,7 +170,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                 color:
                     (isDark ? const Color(0xFF991B1B) : const Color(0xFFFEE2E2))
                         .withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.zero,
               ),
               child: Icon(
                 Icons.delete_sweep_rounded,
@@ -185,7 +186,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                 'Clear Session Records?',
                 style: TextStyle(
                   fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppTheme.textPrimaryDark
                       : AppTheme.textPrimaryLight,
@@ -231,19 +232,19 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+                  backgroundColor: isDark ? AppTheme.cardDark : AppTheme.band,
                   content: Text(
                     'Session triage records cleared.',
                     style: TextStyle(
                       color: isDark
                           ? AppTheme.textPrimaryDark
                           : AppTheme.textPrimaryLight,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.zero,
                     side: BorderSide(
                       color: isDark
                           ? AppTheme.borderFocusedDark
@@ -272,10 +273,10 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: isDark ? AppTheme.cardDark : Colors.white,
+        backgroundColor: isDark ? AppTheme.cardDark : AppTheme.band,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.zero,
           side: BorderSide(
             color: isDark
                 ? AppTheme.borderFocusedDark
@@ -297,7 +298,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                     child: Text(
                       title,
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         fontSize: 15,
                         color: isDark
                             ? AppTheme.textPrimaryDark
@@ -310,7 +311,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                     icon: const Icon(Icons.close_rounded),
                     color: isDark
                         ? AppTheme.textSecondaryDark
-                        : const Color(0xFF64748B),
+                        : AppTheme.textMutedLight,
                     tooltip: 'Close view',
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -322,9 +323,9 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF090D14)
-                        : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
+                        ? AppTheme.paperDark
+                        : AppTheme.surfaceElevatedLight,
+                    borderRadius: BorderRadius.zero,
                     border: Border.all(
                       color: isDark
                           ? AppTheme.borderSubtleDark
@@ -402,8 +403,8 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
           position: _slideAnimation,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 14 : 24,
-              vertical: isMobile ? 14 : 20,
+              horizontal: isMobile ? 20 : 40,
+              vertical: isMobile ? 24 : 40,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,20 +434,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
-                    .withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.history_rounded,
-                size: 22,
-                color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
-              ),
-            ),
-            const SizedBox(width: 12),
+            // Display title carries the header; no icon tile.
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,17 +443,12 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                     crossAxisAlignment: WrapCrossAlignment.center,
                     spacing: 8,
                     children: [
-                      Text(
-                        'Session Triage Records',
-                        style: TextStyle(
-                          fontSize: isMobile ? 18 : 22,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? AppTheme.textPrimaryDark
-                              : AppTheme.textPrimaryLight,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
+                      Display(
+                    'Records',
+                    size: isMobile ? 52 : 84,
+                    height: 0.86,
+                    color: isDark ? AppTheme.pale : AppTheme.ink,
+                  ),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -477,13 +460,13 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                                       ? AppTheme.tealAccentDark
                                       : AppTheme.primaryTeal)
                                   .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.zero,
                         ),
                         child: Text(
                           '${records.length}',
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: isDark
                                 ? AppTheme.tealAccentDark
                                 : AppTheme.primaryTeal,
@@ -494,7 +477,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Continuous clinical audit log of all lesion analyses and referrals',
+                    'Every scan from this session, with its result and urgency.',
                     style: TextStyle(
                       fontSize: isMobile ? 11 : 12.5,
                       color: isDark
@@ -528,7 +511,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   ),
                   textStyle: const TextStyle(
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -546,7 +529,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   ),
                   textStyle: const TextStyle(
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -578,7 +561,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   ),
                   textStyle: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -595,7 +578,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   ),
                   textStyle: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -667,7 +650,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
         label: 'PyTorch Engine',
         value: '$pytorchEngineCount / ${records.length}',
         icon: Icons.memory_rounded,
-        color: const Color(0xFF8B5CF6),
+        color: AppTheme.medicalCyan,
         isDark: isDark,
       ),
     ];
@@ -676,7 +659,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark
               ? AppTheme.borderSubtleDark
@@ -711,7 +694,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.zero,
           ),
           child: Icon(icon, size: 14, color: color),
         ),
@@ -724,7 +707,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
               value,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w500,
                 color: isDark
                     ? AppTheme.textPrimaryDark
                     : AppTheme.textPrimaryLight,
@@ -754,7 +737,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.zero,
             border: Border.all(
               color: isDark
                   ? AppTheme.borderSubtleDark
@@ -764,30 +747,17 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color:
-                      (isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal)
-                          .withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.assignment_late_outlined,
-                  size: 36,
-                  color: isDark
-                      ? AppTheme.tealAccentDark
-                      : AppTheme.primaryTeal,
-                ),
+              ArchIcon(
+                icon: Icons.assignment_late_outlined,
+                color: isDark ? AppTheme.tealAccentDark : AppTheme.primaryTeal,
               ),
               const SizedBox(height: 18),
               Text(
-                'No Clinical Triage Records in Session',
+                'No records yet',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppTheme.textPrimaryDark
                       : AppTheme.textPrimaryLight,
@@ -795,7 +765,7 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
               ),
               const SizedBox(height: 8),
               Text(
-                'When you evaluate patient skin lesions or load MSLD v2.0 clinical samples in the Scan terminal, triage stratification logs, attention maps, and referral dispositions are automatically preserved here.',
+                'Each scan you run in this session is listed here with its result, urgency, and attention map.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.5,
@@ -811,13 +781,13 @@ class _TriageHistoryViewState extends State<TriageHistoryView>
                   widget.onNavigateToScan?.call();
                 },
                 icon: const Icon(Icons.document_scanner_rounded, size: 16),
-                label: const Text('Launch Lesion Scan'),
+                label: const Text('Start a scan'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isDark
                       ? AppTheme.tealAccentDark
                       : AppTheme.primaryTeal,
                   foregroundColor: isDark
-                      ? const Color(0xFF0F172A)
+                      ? AppTheme.textPrimaryLight
                       : Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -918,7 +888,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
         transform: Matrix4.translationValues(0, _isHovered ? -2 : 0, 0),
         decoration: BoxDecoration(
           color: isDark ? AppTheme.cardDark : AppTheme.cardLight,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.zero,
           border: Border.all(
             color: _isHovered
                 ? urgencyColor.withValues(alpha: 0.7)
@@ -927,15 +897,6 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                       : AppTheme.borderSubtleLight),
             width: _isHovered ? 1.4 : 1.0,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: _isHovered
-                  ? urgencyColor.withValues(alpha: isDark ? 0.25 : 0.12)
-                  : Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-              blurRadius: _isHovered ? 10 : 4,
-              offset: Offset(0, _isHovered ? 4 : 2),
-            ),
-          ],
         ),
         clipBehavior: Clip.antiAlias,
         child: IntrinsicHeight(
@@ -963,7 +924,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                               child: Stack(
                                 children: [
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.zero,
                                     child: Image.memory(
                                       item.imageBytes!,
                                       width: isMobile ? 64 : 76,
@@ -980,15 +941,15 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                             decoration: BoxDecoration(
                                               color: isDark
                                                   ? AppTheme.surfaceElevatedDark
-                                                  : const Color(0xFFE2E8F0),
+                                                  : AppTheme.borderSubtleLight,
                                               borderRadius:
-                                                  BorderRadius.circular(10),
+                                                  BorderRadius.zero,
                                             ),
                                             child: Icon(
                                               Icons.broken_image_rounded,
                                               color: isDark
                                                   ? AppTheme.textMutedDark
-                                                  : Colors.grey,
+                                                  : AppTheme.textMutedLight,
                                             ),
                                           ),
                                     ),
@@ -1002,7 +963,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                         color: Colors.black.withValues(
                                           alpha: 0.65,
                                         ),
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.zero,
                                       ),
                                       child: const Icon(
                                         Icons.fullscreen_rounded,
@@ -1021,14 +982,14 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? AppTheme.surfaceElevatedDark
-                                    : const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(10),
+                                    : AppTheme.borderSubtleLight,
+                                borderRadius: BorderRadius.zero,
                               ),
                               child: Icon(
                                 Icons.image_rounded,
                                 color: isDark
                                     ? AppTheme.textMutedDark
-                                    : Colors.grey,
+                                    : AppTheme.textMutedLight,
                               ),
                             ),
                           const SizedBox(width: 14),
@@ -1053,7 +1014,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                           item.condition,
                                           style: TextStyle(
                                             fontSize: isMobile ? 16 : 18,
-                                            fontWeight: FontWeight.w800,
+                                            fontWeight: FontWeight.w500,
                                             color: isDark
                                                 ? AppTheme.textPrimaryDark
                                                 : AppTheme.textPrimaryLight,
@@ -1072,15 +1033,13 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                                               .tealAccentDark
                                                         : AppTheme.primaryTeal)
                                                     .withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
+                                            borderRadius: BorderRadius.zero,
                                           ),
                                           child: Text(
                                             item.confidencePercent,
                                             style: TextStyle(
                                               fontSize: 13,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w500,
                                               fontFeatures: const [
                                                 FontFeature.tabularFigures(),
                                               ],
@@ -1108,7 +1067,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: urgencyBg,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.zero,
                                     border: Border.all(
                                       color: urgencyBorder,
                                       width: 0.8,
@@ -1127,7 +1086,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                           item.isolationProtocol,
                                           style: TextStyle(
                                             fontSize: 12,
-                                            fontWeight: FontWeight.w700,
+                                            fontWeight: FontWeight.w500,
                                             color: urgencyColor,
                                           ),
                                           maxLines: 1,
@@ -1180,7 +1139,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                               _showProbabilities = !_showProbabilities;
                             });
                           },
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.zero,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: Wrap(
@@ -1192,7 +1151,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                       : 'Show Probabilities',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                     color: isDark
                                         ? AppTheme.tealAccentDark
                                         : AppTheme.primaryTeal,
@@ -1237,19 +1196,17 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                                           .withValues(
                                                             alpha: 0.4,
                                                           )
-                                                    : const Color(0xFFDCFCE7))
+                                                    : AppTheme.tealWash)
                                               : (isDark
                                                     ? AppTheme
                                                           .surfaceElevatedDark
-                                                    : const Color(0xFFF1F5F9)),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
+                                                    : AppTheme.surfaceElevatedLight),
+                                          borderRadius: BorderRadius.zero,
                                           border: Border.all(
                                             color: isTop
                                                 ? (isDark
                                                       ? AppTheme.tealAccentDark
-                                                      : const Color(0xFF10B981))
+                                                      : AppTheme.primaryTeal)
                                                 : (isDark
                                                       ? AppTheme
                                                             .borderSubtleDark
@@ -1262,7 +1219,7 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: isTop
-                                                ? FontWeight.w700
+                                                ? FontWeight.w500
                                                 : FontWeight.w500,
                                             fontFeatures: const [
                                               FontFeature.tabularFigures(),
@@ -1372,9 +1329,9 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                               color:
                                   (item.isLocalPyTorchEngine
                                           ? const Color(0xFF0284C7)
-                                          : const Color(0xFF8B5CF6))
+                                          : AppTheme.medicalCyan)
                                       .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.zero,
                             ),
                             child: Text(
                               item.isLocalPyTorchEngine
@@ -1382,14 +1339,14 @@ class _TriageHistoryCardState extends State<_TriageHistoryCard> {
                                   : 'Standalone Dart Engine',
                               style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: item.isLocalPyTorchEngine
                                     ? (isDark
                                           ? AppTheme.medicalCyanLight
                                           : const Color(0xFF0284C7))
                                     : (isDark
-                                          ? const Color(0xFFA78BFA)
-                                          : const Color(0xFF7C3AED)),
+                                          ? AppTheme.medicalCyanLight
+                                          : AppTheme.medicalCyan),
                               ),
                             ),
                           ),

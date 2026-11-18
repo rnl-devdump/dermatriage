@@ -30,12 +30,12 @@ void main() {
         // Settle async asset loading
         await tester.pumpAndSettle();
 
-        expect(find.text('Research Evaluation & Benchmarks'), findsOneWidget);
-        expect(find.text('5-Fold Cross-Val F1'), findsOneWidget);
-        expect(find.text('Mean Held-Out Accuracy'), findsOneWidget);
+        expect(find.text('Benchmarks'), findsOneWidget);
+        expect(find.text('VALIDATION MACRO F1'), findsOneWidget);
+        expect(find.text('HELD-OUT ACCURACY'), findsOneWidget);
         expect(
           find.text(
-            'Ablation Study Visualizer (Multi-Branch vs Standalone Baselines)',
+            'Compared with the baselines',
           ),
           findsOneWidget,
         );
@@ -62,7 +62,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Research Evaluation & Benchmarks'), findsOneWidget);
+      expect(find.text('Benchmarks'), findsOneWidget);
       expect(
         find.text('Fold 1 Held-Out Test Classification Report'),
         findsOneWidget,
@@ -143,7 +143,7 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Research Evaluation & Benchmarks'), findsOneWidget);
+        expect(find.text('Benchmarks'), findsOneWidget);
         for (final ro in tester.allRenderObjects) {
           if (ro is RenderFlex && ro.toString().contains('OVERFLOWING')) {
             debugPrint('OVERFLOWING RENDERFLEX: ${ro.toStringDeep()}');
@@ -234,7 +234,7 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Research Evaluation & Benchmarks'), findsOneWidget);
+        expect(find.text('Benchmarks'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );
@@ -268,12 +268,12 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.text('No Clinical Triage Records in Session'),
+          find.text('No records yet'),
           findsOneWidget,
         );
-        expect(find.text('Launch Lesion Scan'), findsOneWidget);
+        expect(find.text('Start a scan'), findsOneWidget);
 
-        await tester.tap(find.text('Launch Lesion Scan'));
+        await tester.tap(find.text('Start a scan'));
         await tester.pump();
 
         expect(scanNavigated, isTrue);
@@ -385,7 +385,7 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Session Triage Records'), findsOneWidget);
+        expect(find.text('Records'), findsOneWidget);
         expect(find.text('Total Analyzed'), findsOneWidget);
         expect(find.text('Level 1 High Priority'), findsOneWidget);
         expect(find.text('Mean Confidence'), findsOneWidget);
@@ -477,7 +477,7 @@ void main() {
 
       expect(history.records.isEmpty, isTrue);
       expect(
-        find.text('No Clinical Triage Records in Session'),
+        find.text('No records yet'),
         findsOneWidget,
       );
     });
@@ -512,7 +512,7 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Session Triage Records'), findsOneWidget);
+        expect(find.text('Records'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );
@@ -671,7 +671,7 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Session Triage Records'), findsOneWidget);
+        expect(find.text('Records'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

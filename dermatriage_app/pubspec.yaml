@@ -64,7 +64,27 @@ flutter:
   assets:
     - assets/images/research/
     - assets/images/samples/
+    - assets/images/brand/
     - assets/data/
+
+  fonts:
+    - family: Italiana
+      fonts:
+        - asset: assets/fonts/Italiana-Regular.ttf
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DMSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+    - family: DM Mono
+      fonts:
+        - asset: assets/fonts/DMMono-Light.ttf
+          weight: 300
+        - asset: assets/fonts/DMMono-Regular.ttf
+          weight: 400
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

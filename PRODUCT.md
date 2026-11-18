@@ -16,7 +16,7 @@ Dermatriage provides rapid, privacy-preserving, dual-engine clinical decision su
 
 ## Positioning
 
-Unlike generic black-box dermatology AI classifiers that offer only top-1 labels, Dermatriage combines a dual-branch Convolutional Neural Network (CNN for localized edge and lesion texture) with a Vision Transformer (ViT-B/16 for global contextual token attention) fused via cross-attention. It operates with dual deployment modes: an optional high-performance local PyTorch microservice (Fold-1 checkpoint) or a zero-dependency, client-side standalone Dart engine that guarantees offline triage with zero latency and full patient data privacy.
+Unlike generic black-box dermatology AI classifiers that offer only top-1 labels, Dermatriage combines a dual-branch Convolutional Neural Network (CNN for localized edge and lesion texture) with a Vision Transformer (ViT-B/16 for global contextual token attention) fused via cross-attention. The trained model runs in a PyTorch FastAPI service (local or on a cloud GPU). When that service is unreachable, the app falls back to a client-side Dart estimate based on simple colour features; it is labelled as an estimate and is not the trained model.
 
 ## Operating Context
 
@@ -28,10 +28,10 @@ Unlike generic black-box dermatology AI classifiers that offer only top-1 labels
 
 - **6 Target Exanthem Classes**: Monkeypox (Mpox), Chickenpox (Varicella), Cowpox, Hand-Foot-and-Mouth Disease (HFMD), Measles, and Healthy skin controls.
 - **Triage Urgency Stratification**: Level 1 High Priority (Emergency/Immediate Isolation), Level 2 Urgent (12-24h Clinical Review), Level 3 Standard (Non-urgent Pediatric/General), Level 4 Routine (Observation/Healthy).
-- **Dual-Mode Inference**: Local PyTorch FastAPI backend (`127.0.0.1:8000`) with auto-fallback to standalone Dart engine.
+- **Dual-Mode Inference**: PyTorch FastAPI service (local `127.0.0.1:8000` or the cloud deployment) with auto-fallback to the offline Dart estimate, which the result screen labels as not the trained model.
 - **Explainability**: 14x14 Vision Transformer cross-attention map (196 spatial tokens) with interactive opacity slider, grid overlay toggle, and token inspectability.
 - **Differential Matrix**: Comprehensive comparison across pathogen, incubation, transmission, prodrome, lesion evolution, lymphadenopathy, and isolation guidelines.
-- **Validation Metrics**: 5-Fold cross-validation benchmarks from the MSLD v2.0 dataset (89.37% ± 1.57% accuracy, 0.8841 Macro F1, 0.9634 AUC).
+- **Validation Metrics**: Patient-independent 5-fold cross-validation on MSLD v2.0, read at runtime from `assets/data/benchmarks.json` (proposed model: validation macro F1 86.81 ± 2.12, held-out accuracy 82.24 ± 4.26, held-out macro F1 81.28 ± 5.02). The app never shows a hard-coded fallback as a measured figure.
 - **Session Records**: Audit trail of analyzed cases with timestamps, probability distributions, urgency ratings, and exportable triage summaries.
 
 ## Brand Commitments
@@ -52,7 +52,7 @@ Unlike generic black-box dermatology AI classifiers that offer only top-1 labels
 
 1. **Immediate Clinical Actionability**: The triage urgency tag, primary differential, and required isolation protocol must be instantly visible without scrolling or hunting.
 2. **Explainability Over Authority**: Clinicians must be able to visually audit what visual tokens the model attended to (14x14 attention heatmap) rather than being forced to trust a raw score.
-3. **Graceful Resilience**: The system operates completely offline without internet or backend dependencies, providing identical triage guidance whether connected to the PyTorch server or running locally in-browser.
+3. **Graceful Resilience, Honestly Labelled**: The app keeps working without the model server, but says plainly when a result is the offline estimate rather than the trained model.
 4. **Fluid Ergonomics**: Every state change (image load, inference calculation, tab change, differential matrix expansion) animates smoothly with zero layout jank or jarring pop-ins.
 5. **Universal Viewport Harmony**: Unbroken responsiveness across 320px mobile screens, tablets, and wide multi-column clinical monitors.
 
