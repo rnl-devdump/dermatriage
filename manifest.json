@@ -1,11 +1,11 @@
 {
-    "name": "dermatriage_app",
-    "short_name": "dermatriage_app",
+    "name": "Dermatriage",
+    "short_name": "Dermatriage",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#EEF8F6",
+    "theme_color": "#004D40",
+    "description": "Rash photo triage for six classes, using a dual-branch CNN and ViT model with cross-attention.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
